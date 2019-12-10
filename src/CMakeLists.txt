@@ -4,4 +4,4 @@ project( DethcountBot )
 
 add_subdirectory(source)
 
-set(EXECUTABLE_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/build/)
+
