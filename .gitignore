@@ -1,0 +1,4 @@
+src/CMakefiles/*
+*.CMakefiles
+CMakeCache.txt
+Makefile
