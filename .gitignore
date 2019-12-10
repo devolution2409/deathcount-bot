@@ -1,4 +1,5 @@
 src/CMakeFiles/
+src/source/CMakeFiles/
 *.CMakeFiles
 *.cmake
 CMakeCache.txt
