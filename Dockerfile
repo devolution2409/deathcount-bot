@@ -37,13 +37,19 @@ RUN make install
 #is this needed now??
 RUN apt-get -y download libc-bin && dpkg -x libc-bin*.deb unpackdir/ &&  cp unpackdir/sbin/ldconfig /sbin/ && apt-get install --reinstall libc-bin
 RUN apt-get -y install xvfb 
-RUN export DISPLAY=:1
+
 #COPY ./src/  /source
 
 WORKDIR /source/
+
+RUN Xvfb :322 &
+RUN export DISPLAY=:322
+#COPY entrypoint.sh /root/entrypoint.sh
+
 #RUN sed -i 's/geteuid/getppid/' /usr/bin/vlc
 
 #todo: try with a shell script FeelsDankMan
-ENTRYPOINT ["/bin/bash","Xvfb",":1"]
-E
+#doesnt work with entrypoint either
+#Xvfb :1
+
 CMD ["bash"]

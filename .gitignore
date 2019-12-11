@@ -5,3 +5,4 @@ src/source/CMakeFiles/
 CMakeCache.txt
 Makefile
 *.tar.gz
+!src/build/.gitignore
