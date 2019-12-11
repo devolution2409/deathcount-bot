@@ -20,6 +20,7 @@ void decode(const Mat& scores, const Mat& geometry, float scoreThresh,
 
 int main(int argc, char** argv)
 {
+    //using namespace cv::dnn::readnet;
     // Parse command line arguments.
     CommandLineParser parser(argc, argv, keys);
     parser.about("Use this script to run TensorFlow implementation (https://github.com/argman/EAST) of "
@@ -35,6 +36,7 @@ int main(int argc, char** argv)
     int inpWidth = parser.get<int>("width");
     int inpHeight = parser.get<int>("height");
     String model = parser.get<String>("model");
+
 
     if (!parser.check())
     {
@@ -63,13 +65,14 @@ int main(int argc, char** argv)
     outNames[1] = "feature_fusion/concat_3";
 
     Mat frame, blob;
-    while (waitKey(1) < 0)
-    {
+    //while (waitKey(1) < 0)
+    //{
         cap >> frame;
         if (frame.empty())
         {
-            waitKey();
-            break;
+            // waitKey();
+            // break;
+            return 0;
         }
 
         blobFromImage(frame, blob, 1.0, Size(inpWidth, inpHeight), Scalar(123.68, 116.78, 103.94), true, false);
@@ -110,10 +113,10 @@ int main(int argc, char** argv)
         double freq = getTickFrequency() / 1000;
         double t = net.getPerfProfile(layersTimes) / freq;
         std::string label = format("Inference time: %.2f ms", t);
-        putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0));
-
-        imshow(kWinName, frame);
-    }
+        cv::putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0));
+        cv::imwrite("test.png",frame);
+      //  imshow(kWinName, frame);
+  //  }
     return 0;
 }
 

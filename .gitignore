@@ -4,3 +4,4 @@ src/source/CMakeFiles/
 *.cmake
 CMakeCache.txt
 Makefile
+*.tar.gz

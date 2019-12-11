@@ -34,10 +34,16 @@ RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DOPENCV_
 
 RUN make -j 4
 RUN make install
-
+#is this needed now??
+RUN apt-get -y download libc-bin && dpkg -x libc-bin*.deb unpackdir/ &&  cp unpackdir/sbin/ldconfig /sbin/ && apt-get install --reinstall libc-bin
+RUN apt-get -y install xvfb 
+RUN export DISPLAY=:1
 #COPY ./src/  /source
 
 WORKDIR /source/
 #RUN sed -i 's/geteuid/getppid/' /usr/bin/vlc
 
+#todo: try with a shell script FeelsDankMan
+ENTRYPOINT ["/bin/bash","Xvfb",":1"]
+E
 CMD ["bash"]

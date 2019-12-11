@@ -31,12 +31,13 @@
             "label": "Run Bash on Docker Image",
             "type": "shell",
             "promptOnClose": true,
-            "command": "docker run -it --rm -v /home/devolution/deathcount-bot/src/:/source/ deathcount-bot:latest bash",
+            "command": "docker run -it --rm -v /home/devolution/deathcount-bot/src/:/source/ deathcount-bot:latest",
             "group": "test",
             "presentation": {
                 "reveal": "always",
                 "panel": "new"
             },
         },
+
     ]
 }
