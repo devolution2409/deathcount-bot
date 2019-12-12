@@ -1,49 +1,69 @@
 #include "Matcher.hpp"
 
 
+
 using cv::Mat;
 Matcher::Matcher(){
-    std::cout << "LUL I WAS INSTANCIED";
+    std::cout << "LUL I WAS INSTANCIED" << std::endl;
 }
 
 Matcher::~Matcher(){
-    delete this->_template;
-    delete this->image;
+    std::cout << "I was destroyed" << std::endl;
 
 }  
 
-Matcher& Matcher::SetTemplate(cv::Mat * other){
+/* Matcher& Matcher::SetTemplate(cv::Mat * other){
+    if (_template != nullptr){
+         delete this->_template;
+    }
     this->_template = other;
     return *this;
 }
 Matcher& Matcher::SetImage(cv::Mat * other){
+    if (image != nullptr){
+        delete this->image;
+    }
     this->image = other;
     return *this;
-}
+} */
 
 Matcher& Matcher::SetTemplate(std::string other){
-    *_template = cv::imread(other.c_str());
+    // std::cout << "Setting Template from string" << std::endl;
+    _template = cv::imread(other.c_str());
     return *this;
 }
 
 Matcher& Matcher::SetImage(std::string other){
-    *image = cv::imread(other.c_str());
+    // std::cout << "Setting Image from string" << std::endl;
+    image = cv::imread(other.c_str());
     return *this;
 }
 
 Matcher& Matcher::SetTemplate(char* other){
+ /*    std::cout << "Setting Template from char*";
+    if (_template != nullptr){
+         delete this->_template;
+    }
     *_template = cv::imread(other);
     return *this;
-
+ */
 }
 Matcher& Matcher::SetImage(char* other){
+ /*      std::cout << "Setting Image from char*";
+    if (image != nullptr){
+        delete this->image;
+    }
     *image = cv::imread(other);
     return *this;
-
+ */
 }
 
 Matcher& Matcher::SetMethod(Matcher::Method method){
+    std::cout << "Setting method to: " << method << std::endl;
+
     this->method = method;
+    this->iMethod = static_cast<int>(method);
+    std::cout << "this->method: " << this->method  << " " << iMethod << std::endl;
     return *this;
 
 }
@@ -51,11 +71,39 @@ Matcher& Matcher::SetMethod(Matcher::Method method){
 
 
 void Matcher::Process(){
+    using cv::Point;
+    using cv::Scalar;
     //ensure we are not null pointer
-    if ( _template == nullptr || image == nullptr){
-        return;
-    }
+  
     //else we compare
+  
+    // Create the result matrix
+    int result_cols = this->image.cols - this->_template.cols + 1;
+    int result_rows = this->image.rows - this->_template.rows + 1;
+    this->result.create( result_rows, result_cols, CV_32FC1 );
+
+
+    // Do the Matching and Normalize
+    std::cout << "this->method before call: " << static_cast<int>(this->method)  <<" " << this->iMethod << std::endl;
+  //  this->method= Matcher::Method::CV_TM_SQDIFF_NORMED;
+    std::cout << "this->method before call: " << static_cast<int>(this->method) <<" " << this->iMethod  << std::endl;
+   matchTemplate( this->image, this->_template, this->result, this->method );
+    normalize( result, result, 0, 1, Matcher::NormTypes::NORM_MINMAX, -1, Mat() );
+    double minVal, maxVal;
+    Point minLoc, maxLoc, matchLoc;
+    minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
+
+    // For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
+  if( this->method == Matcher::Method::CV_TM_SQDIFF ||this->method == Matcher::Method::CV_TM_SQDIFF_NORMED )
+    { matchLoc = minLoc; }
+  else
+    { matchLoc = maxLoc; }
+  rectangle( image, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar::all(0), 2, 8, 0 );
+  rectangle( result, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar::all(0), 2, 8, 0 );
+
+std::cout << "nyeeeh";
+  cv::imwrite("template.png",_template);
+  cv::imwrite("image.png",image);
 
 }
 /*
@@ -96,6 +144,5 @@ void MatchingMethod( int, void* )
 
   return;
 }
-
 
 */
