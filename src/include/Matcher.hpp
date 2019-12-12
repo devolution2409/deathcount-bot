@@ -17,13 +17,19 @@ class Matcher{
     public:
         Matcher();
         
-        Matcher& SetImgA(cv::Mat other);
-        Matcher& SetImgB(cv::Mat other);
+        Matcher& SetTemplate(cv::Mat * other);
+        Matcher& SetImage(cv::Mat * other);
+        Matcher& SetTemplate(std::string other);
+        Matcher& SetImage(std::string other);
+        Matcher& SetTemplate(char* other);
+        Matcher& SetImage(char* other);
+
 
         ~Matcher();
     private:
-        cv::Mat imgA;
-        cv::Mat imgB;
+    /* https://github.com/opencv/opencv/blob/c2b6c6743175241d895fe4e67028fd960a405b00/modules/core/include/opencv2/core/mat.hpp#L791 */
+        cv::Mat * _template;
+        cv::Mat * image;
 
 
 
