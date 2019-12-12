@@ -37,7 +37,7 @@ int main( int argc, char** argv )
   //createTrackbar( trackbar_label, image_window, &match_method, max_Trackbar, MatchingMethod );
 
   MatchingMethod( 0, 0 );
-
+//test
   waitKey(0);
   return 0;
 }
