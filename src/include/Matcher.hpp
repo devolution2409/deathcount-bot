@@ -76,7 +76,6 @@ class Matcher{
         cv::Mat  image;
         cv::Mat  result;
         Method method;
-        int iMethod;
 
     public:
         Matcher();
