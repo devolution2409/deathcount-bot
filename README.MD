@@ -48,3 +48,5 @@ GachiPls DETH
 https://www.learnopencv.com/deep-learning-based-text-detection-using-opencv-c-python/
 https://www.pyimagesearch.com/2018/08/20/opencv-text-detection-east-text-detector/
 https://www.pyimagesearch.com/2017/07/10/using-tesseract-ocr-python/
+
+TODO: move the sh in dockerfile as entrypoint
