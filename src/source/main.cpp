@@ -9,7 +9,6 @@
 using namespace cv;
 #include <string>
 #include "Matcher.hpp"
-#include <iostream>
 
 /// Global Variables
 Mat img; Mat templ; Mat result;
@@ -25,11 +24,11 @@ void MatchingMethod( int, void* );
 /** @function main */
 int main( int argc, char** argv )
 {
-  std::cout << "WTF";
+    Matcher test;
+    return 0;
   /// Load image and template
   img = imread( argv[1], 1 );
   templ = imread( argv[2], 1 );
-  Matcher matcher;
 
   /// Create windows (we dont care in CLI)
   //namedWindow( image_window, CV_WINDOW_AUTOSIZE );
@@ -39,10 +38,7 @@ int main( int argc, char** argv )
   //char* trackbar_label = "Method: \n 0: SQDIFF \n 1: SQDIFF NORMED \n 2: TM CCORR \n 3: TM CCORR NORMED \n 4: TM COEFF \n 5: TM COEFF NORMED";
   //createTrackbar( trackbar_label, image_window, &match_method, max_Trackbar, MatchingMethod );
 
-
-
-//  MatchingMethod( 0, 0 );
-
+  MatchingMethod( 0, 0 );
 //test
   waitKey(0);
   return 0;
@@ -51,8 +47,8 @@ int main( int argc, char** argv )
 /**
  * @function MatchingMethod
  * @brief Trackbar callback
- *//* 
-
+ */
+/*
 void MatchingMethod( int, void* )
 {
   /// Source image to display
@@ -89,4 +85,5 @@ void MatchingMethod( int, void* )
   imshow( result_window, result );
 
   return;
-} */
+}
+*/
