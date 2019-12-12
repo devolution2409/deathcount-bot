@@ -12,3 +12,4 @@ Makefile
 *link*txt
 *.marks
 src/source/DethcountBot
+src/build/DethcountBot
