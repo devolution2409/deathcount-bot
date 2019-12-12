@@ -28,42 +28,29 @@ Matcher& Matcher::SetImage(cv::Mat * other){
 } */
 
 Matcher& Matcher::SetTemplate(std::string other){
-    // std::cout << "Setting Template from string" << std::endl;
     _template = cv::imread(other.c_str());
     return *this;
 }
 
 Matcher& Matcher::SetImage(std::string other){
-    // std::cout << "Setting Image from string" << std::endl;
     image = cv::imread(other.c_str());
     return *this;
 }
 
 Matcher& Matcher::SetTemplate(char* other){
- /*    std::cout << "Setting Template from char*";
-    if (_template != nullptr){
-         delete this->_template;
-    }
-    *_template = cv::imread(other);
+    _template = cv::imread(other);
     return *this;
- */
+
 }
 Matcher& Matcher::SetImage(char* other){
- /*      std::cout << "Setting Image from char*";
-    if (image != nullptr){
-        delete this->image;
-    }
-    *image = cv::imread(other);
+    image = cv::imread(other);
     return *this;
- */
 }
 
 Matcher& Matcher::SetMethod(Matcher::Method method){
     std::cout << "Setting method to: " << method << std::endl;
 
     this->method = method;
-    this->iMethod = static_cast<int>(method);
-    std::cout << "this->method: " << this->method  << " " << iMethod << std::endl;
     return *this;
 
 }
@@ -71,10 +58,12 @@ Matcher& Matcher::SetMethod(Matcher::Method method){
 
 
 void Matcher::Process(){
+    
+    //cv::imwrite("templateProcess.jpg",_template);
     using cv::Point;
     using cv::Scalar;
     //ensure we are not null pointer
-  
+     
     //else we compare
   
     // Create the result matrix
@@ -84,10 +73,10 @@ void Matcher::Process(){
 
 
     // Do the Matching and Normalize
-    std::cout << "this->method before call: " << static_cast<int>(this->method)  <<" " << this->iMethod << std::endl;
+    //std::cout << "this->method before call: " << static_cast<int>(this->method)  <<" " << this->iMethod << std::endl;
   //  this->method= Matcher::Method::CV_TM_SQDIFF_NORMED;
-    std::cout << "this->method before call: " << static_cast<int>(this->method) <<" " << this->iMethod  << std::endl;
-   matchTemplate( this->image, this->_template, this->result, this->method );
+    
+    matchTemplate( this->image, this->_template, this->result, this->method );
     normalize( result, result, 0, 1, Matcher::NormTypes::NORM_MINMAX, -1, Mat() );
     double minVal, maxVal;
     Point minLoc, maxLoc, matchLoc;
@@ -102,7 +91,7 @@ void Matcher::Process(){
   rectangle( result, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar::all(0), 2, 8, 0 );
 
 std::cout << "nyeeeh";
-  cv::imwrite("template.png",_template);
+  cv::imwrite("result.png",result);
   cv::imwrite("image.png",image);
 
 }
