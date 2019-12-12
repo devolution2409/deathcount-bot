@@ -89,6 +89,13 @@ class Matcher{
         Matcher& SetImage(char* other);
         Matcher& SetMethod(Matcher::Method method);
 
+        /**
+         * @brief Search for template in image
+         * 
+         * TODO: add recursivity to be able to find several objects if they are prsent? not really useful but eh
+         * TODO: for real, added the 
+         * 
+         */
         void Process();
 
         ~Matcher();

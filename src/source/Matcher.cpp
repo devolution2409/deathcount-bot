@@ -87,11 +87,11 @@ void Matcher::Process(){
     { matchLoc = minLoc; }
   else
     { matchLoc = maxLoc; }
-  rectangle( image, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar::all(0), 2, 8, 0 );
-  rectangle( result, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar::all(0), 2, 8, 0 );
+  rectangle( image, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar(0,0,255), 2, 8, 0 );
+  //rectangle( result, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar::all(0), 2, 8, 0 );
 
-std::cout << "nyeeeh";
-  cv::imwrite("result.png",result);
+
+  //cv::imwrite("result.png",result);
   cv::imwrite("image.png",image);
 
 }
