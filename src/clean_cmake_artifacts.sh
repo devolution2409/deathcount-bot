@@ -9,9 +9,10 @@ files=(
     source/CMakeFiles
     source/*.cmake
     source/Makefile
+    
 )
 
 for i in "${files[@]}"
 do
-   rm -rf $i;
+   sudo rm -rf $i;
 done
