@@ -50,6 +50,6 @@ foreach(dir ${dirs})
   message(STATUS "dir='${dir}'")
 endforeach()
 
-#set(EXECUTABLE_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/build/))
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/build)
 
 
