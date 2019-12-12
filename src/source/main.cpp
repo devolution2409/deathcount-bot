@@ -8,7 +8,7 @@
 #include <stdio.h> */
 using namespace cv;
 #include <string>
-
+#include "Matcher.hpp"
 
 /// Global Variables
 Mat img; Mat templ; Mat result;
@@ -33,8 +33,8 @@ int main( int argc, char** argv )
   //namedWindow( result_window, CV_WINDOW_AUTOSIZE );
 
   /// Create Trackbar
-  char* trackbar_label = "Method: \n 0: SQDIFF \n 1: SQDIFF NORMED \n 2: TM CCORR \n 3: TM CCORR NORMED \n 4: TM COEFF \n 5: TM COEFF NORMED";
-  createTrackbar( trackbar_label, image_window, &match_method, max_Trackbar, MatchingMethod );
+  //char* trackbar_label = "Method: \n 0: SQDIFF \n 1: SQDIFF NORMED \n 2: TM CCORR \n 3: TM CCORR NORMED \n 4: TM COEFF \n 5: TM COEFF NORMED";
+  //createTrackbar( trackbar_label, image_window, &match_method, max_Trackbar, MatchingMethod );
 
   MatchingMethod( 0, 0 );
 
