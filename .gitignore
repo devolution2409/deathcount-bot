@@ -6,3 +6,9 @@ CMakeCache.txt
 Makefile
 *.tar.gz
 !src/build/.gitignore
+*.Makefile*.cmake
+*.includecache
+*.internal
+*link*txt
+*.marks
+src/source/DethcountBot
