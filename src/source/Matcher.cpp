@@ -159,4 +159,18 @@ void Matcher::MultiScaleMatching(){
 	    std::cout << std::endl << "(ex,ey): (" << endX << "," << endY << ")";
 	//cv::imwrite(this->filename.c_str(),originalImg);
 
+
+	/*
+	*	Heatmap:
+	*	Foreach scale/ratio:
+	*      store the bounding box and the ratio
+	*	   normalize bounding box
+	*	   so i guess, make the function return tuple with all paramaters from result. So basically result.
+	*	Foreach bounding box:
+	*		all pixels in area are 1, every other is 0	
+	*	Use https://github.com/lucasb-eyer/libheatmap to calculate heatmap
+	*
+	*
+	*/
+
 }

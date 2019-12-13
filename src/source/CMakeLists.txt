@@ -12,6 +12,7 @@ find_package( OpenCV REQUIRED )
 set(SOURCES
     main.cpp
     Matcher.cpp
+    HeatMap.cpp
     )
     
 set(HEADERS

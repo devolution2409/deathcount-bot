@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include "HeatMap.hpp"
 
 
 class Matcher{
@@ -96,13 +97,7 @@ class Matcher{
         Matcher& SetMatchMethod(Matcher::MatchMethod method);
         Matcher& SetResizeMethod(Matcher::ResizeType method);
         Matcher& SetOutputFilename(std::string name);
-        /**
-         * @brief Search for template in image
-         * 
-         * TODO: add recursivity to be able to find several objects if they are prsent? not really useful but eh
-         * TODO: for real, added the 
-         * 
-         */
+
         std::tuple<double, cv::Point> SingleMatch(bool drawBoundingBox = 0);
         // https://www.pyimagesearch.com/2015/01/26/multi-scale-template-matching-using-python-opencv/
         void MultiScaleMatching();
