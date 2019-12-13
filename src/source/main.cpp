@@ -10,6 +10,7 @@ using namespace cv;
 #include <string>
 #include "Matcher.hpp"
 #include <iostream>
+#include <tuple>
 
 /** @function main */
 int main( int argc, char** argv )
@@ -25,10 +26,11 @@ int main( int argc, char** argv )
     
     matcher.SetImage(std::string(argv[1]))
             .SetTemplate(argv[2])
-            .SetMethod(Matcher::Method::CV_TM_CCOEFF_NORMED)
+            .SetMatchMethod(Matcher::MatchMethod::CV_TM_CCOEFF_NORMED)
         ;
 
-    matcher.Process(); 
- 
+    //matcher.SingleMatch(); 
+    matcher.MultiScaleMatching();
+
   return 0;
 }

@@ -3,5 +3,5 @@
     "python.linting.enabled": true,
     "cmake.configureOnOpen": false,
     "C_Cpp.default.configurationProvider": "go2sh.cmake-integration",
-    "C_Cpp.intelliSenseEngineFallback": "Enabled"
+    "C_Cpp.intelliSenseEngineFallback": "Enabled",
 }

@@ -2,12 +2,12 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 #include <iostream>
-
+#include <vector>
 
 
 class Matcher{
      public:
-      enum Method {
+      enum MatchMethod {
         CV_TM_SQDIFF        =0,
         CV_TM_SQDIFF_NORMED =1,
         CV_TM_CCORR         =2,
@@ -16,6 +16,13 @@ class Matcher{
         CV_TM_CCOEFF_NORMED =5
 
 };
+      enum ResizeType{
+          INTER_NEAREST     = 0,
+          INTER_LINEAR      = 1,
+          INTER_AREA        = 2,
+          INTER_CUBIC       = 3,
+          INTER_LANCZOS4    = 4,
+      };
 // https://github.com/opencv/opencv/blob/097d81363befbce1bf922379a4ea886e5f6dbd2b/modules/core/include/opencv2/core/base.hpp#L159
     enum NormTypes {                /**
                 \f[
@@ -75,19 +82,20 @@ class Matcher{
         cv::Mat  _template;
         cv::Mat  image;
         cv::Mat  result;
-        Method method;
+        MatchMethod matchMethod;
+        ResizeType resizeMethod;
+        std::string filename;
 
     public:
         Matcher();
 
-        // Matcher& SetTemplate(cv::Mat * other);
-        // Matcher& SetImage(cv::Mat * other);
         Matcher& SetTemplate(std::string other);
         Matcher& SetImage(std::string other);
         Matcher& SetTemplate(char* other);
         Matcher& SetImage(char* other);
-        Matcher& SetMethod(Matcher::Method method);
-
+        Matcher& SetMatchMethod(Matcher::MatchMethod method);
+        Matcher& SetResizeMethod(Matcher::ResizeType method);
+        Matcher& SetOutputFilename(std::string name);
         /**
          * @brief Search for template in image
          * 
@@ -95,9 +103,12 @@ class Matcher{
          * TODO: for real, added the 
          * 
          */
-        void Process();
-
+        std::tuple<double, cv::Point> SingleMatch(bool drawBoundingBox = 0);
+        // https://www.pyimagesearch.com/2015/01/26/multi-scale-template-matching-using-python-opencv/
+        void MultiScaleMatching();
+    
         ~Matcher();
+
 
     
 

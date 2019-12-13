@@ -5,27 +5,16 @@
 using cv::Mat;
 Matcher::Matcher(){
     std::cout << "LUL I WAS INSTANCIED" << std::endl;
+	this->filename = "output.png";
+	// default values
+	this->resizeMethod = Matcher::ResizeType::INTER_LINEAR;
+	this->matchMethod = Matcher::MatchMethod::CV_TM_CCOEFF_NORMED;
 }
 
 Matcher::~Matcher(){
     std::cout << "I was destroyed" << std::endl;
 
 }  
-
-/* Matcher& Matcher::SetTemplate(cv::Mat * other){
-    if (_template != nullptr){
-         delete this->_template;
-    }
-    this->_template = other;
-    return *this;
-}
-Matcher& Matcher::SetImage(cv::Mat * other){
-    if (image != nullptr){
-        delete this->image;
-    }
-    this->image = other;
-    return *this;
-} */
 
 Matcher& Matcher::SetTemplate(std::string other){
     _template = cv::imread(other.c_str());
@@ -47,18 +36,27 @@ Matcher& Matcher::SetImage(char* other){
     return *this;
 }
 
-Matcher& Matcher::SetMethod(Matcher::Method method){
-    std::cout << "Setting method to: " << method << std::endl;
-
-    this->method = method;
+Matcher& Matcher::SetMatchMethod(Matcher::MatchMethod method){
+    // std::cout << "Setting method to: " << method << std::endl;
+    this->matchMethod = method;
     return *this;
-
 }
 
+Matcher& Matcher::SetResizeMethod(Matcher::ResizeType method){
+    // std::cout << "Setting method to: " << method << std::endl;
+    this->resizeMethod = method;
+    return *this;
+}
 
+Matcher& Matcher::SetOutputFilename(std::string name){
+	if (name.empty()){
+		return *this;
+	}
+	// sanitize i guess?
+	this->filename = name;
+}
 
-void Matcher::Process(){
-    
+std::tuple<double, cv::Point> Matcher::SingleMatch(bool DrawBoundingBox){
     //cv::imwrite("templateProcess.jpg",_template);
     using cv::Point;
     using cv::Scalar;
@@ -76,62 +74,89 @@ void Matcher::Process(){
     //std::cout << "this->method before call: " << static_cast<int>(this->method)  <<" " << this->iMethod << std::endl;
   //  this->method= Matcher::Method::CV_TM_SQDIFF_NORMED;
     
-    matchTemplate( this->image, this->_template, this->result, this->method );
+    matchTemplate( this->image, this->_template, this->result, this->matchMethod );
     normalize( result, result, 0, 1, Matcher::NormTypes::NORM_MINMAX, -1, Mat() );
     double minVal, maxVal;
     Point minLoc, maxLoc, matchLoc;
     minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
 
     // For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
-  if( this->method == Matcher::Method::CV_TM_SQDIFF ||this->method == Matcher::Method::CV_TM_SQDIFF_NORMED )
+  if( this->matchMethod == Matcher::MatchMethod::CV_TM_SQDIFF ||this->matchMethod == Matcher::MatchMethod::CV_TM_SQDIFF_NORMED )
     { matchLoc = minLoc; }
   else
     { matchLoc = maxLoc; }
-  rectangle( image, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar(0,0,255), 2, 8, 0 );
-  //rectangle( result, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar::all(0), 2, 8, 0 );
+   
+   
+   if (DrawBoundingBox){
+   	rectangle( image, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar(0,0,255), 2, 8, 0 );
+   }
 
 
-  //cv::imwrite("result.png",result);
-  cv::imwrite("image.png",image);
 
-}
-/*
-void MatchingMethod( int, void* )
-{
-  /// Source image to display
-  Mat img_display;
-  img.copyTo( img_display );
-
-  /// Create the result matrix
-  int result_cols =  img.cols - templ.cols + 1;
-  int result_rows = img.rows - templ.rows + 1;
-
-  result.create( result_rows, result_cols, CV_32FC1 );
-
-  /// Do the Matching and Normalize
-  matchTemplate( img, templ, result, match_method );
-  normalize( result, result, 0, 1, NORM_MINMAX, -1, Mat() );
-
-  /// Localizing the best match with minMaxLoc
-  double minVal; double maxVal; Point minLoc; Point maxLoc;
-  Point matchLoc;
-
-  minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
-
-  /// For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
-  if( match_method  == CV_TM_SQDIFF || match_method == CV_TM_SQDIFF_NORMED )
-    { matchLoc = minLoc; }
-  else
-    { matchLoc = maxLoc; }
-
-  /// Show me what you got
-  rectangle( img_display, matchLoc, Point( matchLoc.x + templ.cols , matchLoc.y + templ.rows ), Scalar::all(0), 2, 8, 0 );
-  rectangle( result, matchLoc, Point( matchLoc.x + templ.cols , matchLoc.y + templ.rows ), Scalar::all(0), 2, 8, 0 );
-
-  imshow( image_window, img_display );
-  imshow( result_window, result );
-
-  return;
+  	//cv::imwrite(this->filename.c_str(),image);
+	return std::make_tuple<double, cv::Point>(std::move(maxVal), std::move(maxLoc));
 }
 
-*/
+void Matcher::MultiScaleMatching(){
+	//found; ?
+	std::tuple<double, cv::Point> found;
+	bool foundOnce = false;
+
+	float maxScale = 1, minScale = 0.2, stepNumber = 20 ,step = (maxScale - minScale) / stepNumber;
+	float ratio;
+	std::string filename = this->filename;
+	// we're going to need the dimension of the template
+	cv::Size s = this->_template.size();
+	int tHeight = s.height , tWidth = s.width;
+
+	Mat scaled;
+
+	// avoid shitloads of bounding boxes
+	Mat originalImg = this->image;
+
+	// scaling down image and applying match until image is smaller than template
+	for (double i=maxScale; i > minScale; i-= step){
+		
+		std::cout << "i: " << i << std::endl;
+		//To shrink an image, it will generally look best with CV_INTER_AREA interpolation, whereas to enlarge an image, it will generally look best with CV_INTER_CUBIC (slow) or CV_INTER_LINEAR (faster but still looks OK).
+
+		cv::resize(originalImg, scaled, cv::Size(), i, i, Matcher::ResizeType::INTER_AREA);
+		ratio = originalImg.size().width / scaled.size().width;
+
+		// compute scaled image size
+		s = scaled.size();
+		int sHeight = s.height, sWidth = s.width;
+		// if scaled image is smoler than template we break
+		if ( sHeight < tHeight || sWidth < tWidth ){
+			std::cout << "forsenE ?"; 
+			break;
+		}
+		
+		this->image = scaled;
+		this->filename = std::to_string(i) + "_" + filename;
+
+		// Applying the matching template method
+		std::tuple<double, cv::Point> result = this->SingleMatch(false);
+		// reads the value of the variant given the index or the type (if the type is unique), throws on error
+		if (!foundOnce || std::get<double>(result) > std::get<double>(found)  ){
+			found = result;
+			foundOnce = true;
+		}
+
+
+	}
+	cv::Point maxLoc = std::get<cv::Point>(found);
+	
+
+	int startX 	= maxLoc.x * ratio;
+	int startY 	= maxLoc.y * ratio;
+	int endX 	= (maxLoc.x + tWidth ) * ratio;
+	int endY	= (maxLoc.x + tHeight) * ratio;
+
+	//rectangle( image, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar(0,0,255), 2, 8, 0 );
+   //	rectangle( originalImg,  cv::Point( startX, startY) ,cv::Point(endX,endY), cv::Scalar(0,0,255), 2, 8, 0 );
+	   std::cout << std::endl << "(sx,sy): (" << startX << "," << startY << ")";
+	    std::cout << std::endl << "(ex,ey): (" << endX << "," << endY << ")";
+	//cv::imwrite(this->filename.c_str(),originalImg);
+
+}
