@@ -56,7 +56,8 @@ Matcher& Matcher::SetOutputFilename(std::string name){
 	this->filename = name;
 }
 
-std::tuple<double, cv::Point> Matcher::SingleMatch(bool DrawBoundingBox){
+//std::tuple<double, cv::Point> 
+cv::Point Matcher::SingleMatch(bool DrawBoundingBox){
     //cv::imwrite("templateProcess.jpg",_template);
     using cv::Point;
     using cv::Scalar;
@@ -94,13 +95,12 @@ std::tuple<double, cv::Point> Matcher::SingleMatch(bool DrawBoundingBox){
 
 
   	//cv::imwrite(this->filename.c_str(),image);
-	return std::make_tuple<double, cv::Point>(std::move(maxVal), std::move(maxLoc));
+	return matchLoc;
 }
 
 void Matcher::MultiScaleMatching(){
 	//found; ?
-	std::tuple<double, cv::Point> found;
-	bool foundOnce = false;
+	std::vector<std::tuple<double, cv::Point>> data;
 
 	float maxScale = 1, minScale = 0.2, stepNumber = 20 ,step = (maxScale - minScale) / stepNumber;
 	float ratio;
@@ -136,28 +136,11 @@ void Matcher::MultiScaleMatching(){
 		this->filename = std::to_string(i) + "_" + filename;
 
 		// Applying the matching template method
-		std::tuple<double, cv::Point> result = this->SingleMatch(false);
-		// reads the value of the variant given the index or the type (if the type is unique), throws on error
-		if (!foundOnce || std::get<double>(result) > std::get<double>(found)  ){
-			found = result;
-			foundOnce = true;
-		}
-
-
+		cv::Point result = this->SingleMatch(false);
+		data.push_back(std::make_tuple<double,cv::Point>(std::move(i),std::move(result)));
 	}
-	cv::Point maxLoc = std::get<cv::Point>(found);
-	
 
-	int startX 	= maxLoc.x * ratio;
-	int startY 	= maxLoc.y * ratio;
-	int endX 	= (maxLoc.x + tWidth ) * ratio;
-	int endY	= (maxLoc.x + tHeight) * ratio;
 
-	//rectangle( image, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar(0,0,255), 2, 8, 0 );
-   //	rectangle( originalImg,  cv::Point( startX, startY) ,cv::Point(endX,endY), cv::Scalar(0,0,255), 2, 8, 0 );
-	   std::cout << std::endl << "(sx,sy): (" << startX << "," << startY << ")";
-	    std::cout << std::endl << "(ex,ey): (" << endX << "," << endY << ")";
-	//cv::imwrite(this->filename.c_str(),originalImg);
 
 
 	/*
