@@ -137,17 +137,24 @@ void Matcher::MultiScaleMatching(){
 		// Applying the matching template method
 		cv::Point result = this->SingleMatch(false);
 
-		data.push_back( std::make_tuple<double, cv::Point>(std::move(ratio),std::move(result)));
-
+		//data.push_back( std::make_tuple<double, cv::Point>(std::move(ratio),std::move(result)));
+		data.push_back( std::make_tuple<double, cv::Point>(std::move(i),std::move(result)));
 
 	}
-
+	std::cout << "Before:" << std::endl;
 	std::for_each(data.begin(), data.end(),[&](std::tuple<double, cv::Point> p){
 		std::cout << "Ratio: " << std::get<double>(p) << " Matchloc:" << std::get<cv::Point>(p) << std::endl;
 
+
 	});
+// scale them
+	std::cout << "after:" << std::endl;
+	std::for_each(data.begin(), data.end(),[&](std::tuple<double, cv::Point> p){
+		std::get<cv::Point>(p)/= std::get<double>(p);
+		std::cout << "Ratio: " << std::get<double>(p) << " Matchloc:" << std::get<cv::Point>(p) << std::endl;
 
 
+	});
 	/*
 	*	Heatmap:
 	*	Foreach scale/ratio:
