@@ -13,6 +13,7 @@ set(SOURCES
     main.cpp
     Matcher.cpp
     HeatMap.cpp
+    lodepng.cpp
     )
     
 set(HEADERS

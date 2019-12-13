@@ -101,7 +101,7 @@ void Matcher::MultiScaleMatching(){
 	//found; ?
 	std::vector<std::tuple<double, cv::Point>> data;
 	
-	float maxScale = 1, minScale = 0.2, stepNumber = 20 ,step = (maxScale - minScale) / stepNumber;
+	float maxScale = 1, minScale = 0.2, stepNumber = 1 ,step = (maxScale - minScale) / stepNumber;
 	double ratio;
 	std::string filename = this->filename;
 	// we're going to need the dimension of the template
@@ -132,29 +132,98 @@ void Matcher::MultiScaleMatching(){
 		}
 		
 		this->image = scaled;
-		this->filename = std::to_string(i) + "_" + filename;
+		
 
 		// Applying the matching template method
 		cv::Point result = this->SingleMatch(false);
+		this->filename = std::to_string(i) + "_" + filename;
+		//this->WriteImage();
 
 		//data.push_back( std::make_tuple<double, cv::Point>(std::move(ratio),std::move(result)));
 		data.push_back( std::make_tuple<double, cv::Point>(std::move(i),std::move(result)));
 
+
+
 	}
-	std::cout << "Before:" << std::endl;
+	
+	// heatmap_t* hm = heatmap_new(originalImg.size().width, originalImg.size().height);
+	// get the area of the stuff and scale the points to match original image size
+	// scale them
 	std::for_each(data.begin(), data.end(),[&](std::tuple<double, cv::Point> p){
-		std::cout << "Ratio: " << std::get<double>(p) << " Matchloc:" << std::get<cv::Point>(p) << std::endl;
+
+		std::vector<unsigned char> heatmap(originalImg.size().width*originalImg.size().height*4);
+		heatmap_t* hm = heatmap_new(originalImg.size().width, originalImg.size().height);
+
+		
+		cv::Point matchLoc = std::get<cv::Point>(p);
+
+
+ 		for (int x = matchLoc.x ; x < matchLoc.x + _template.cols; ++x){
+			for (int y = matchLoc.y ; y < matchLoc.y + _template.rows; ++y){
+				
+				heatmap_add_point(hm,  (matchLoc.x + x) / std::get<double>(p) , (matchLoc.y + y)/ std::get<double>(p));
+				
+			}
+		}
+				rectangle( this->image, matchLoc, cv::Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), cv::Scalar(0,0,255), 2, 8, 0 );
+
+
+
+		    heatmap_render_default_to(hm, &heatmap[0]);
+			heatmap_free(hm); 
+		if(unsigned error = lodepng::encode((std::to_string(std::get<double>(p)) + "_" + std::string("heatmap.png")).c_str() , heatmap, originalImg.size().width,originalImg.size().height)) {
+    		    std::cerr << "encoder error " << error << ": "<< lodepng_error_text(error) << std::endl;
+        return;
+		this->WriteImage();
+		heatmap.clear();
+    }
 
 
 	});
-// scale them
-	std::cout << "after:" << std::endl;
+
+
+/*
+
+ 	std::vector<unsigned char> heatmap(originalImg.size().width*originalImg.size().height*4);
+    heatmap_render_default_to(hm, &heatmap[0]);
+
+    // Now that we've got a finished heatmap picture, we don't need the map anymore.
+    heatmap_free(hm);
+
+	//Mat m = Mat(originalImg.rows, originalImg.cols, CV_64FC4); // initialize matrix of uchar of 1-channel where you will store vec data
+    //copy vector to mat
+   // memcpy(m.data, heatmap.data(), heatmap.size()*sizeof(unsigned char)); 
+
+	//cv::imwrite(this->filename.c_str(),m);
+	//std::cout << "img dimension:" << originalImg.cols << "x" << originalImg.rows;
+
+
+	if(unsigned error = lodepng::encode("heatmap.png", heatmap, originalImg.size().width,originalImg.size().height)) {
+        std::cerr << "encoder error " << error << ": "<< lodepng_error_text(error) << std::endl;
+        return;
+    }
+	//IMREAD_UNCHANGED == -1
+	//https://github.com/opencv/opencv/blob/8c0b0714e76efef4a8ca2a7c410c60e55c5e9829/modules/imgcodecs/include/opencv2/imgcodecs.hpp#L64
+	Mat _hm = cv::imread("heatmap.png");
+	Mat lul;
+	cv::addWeighted( _hm,0.5, originalImg, 0.5, 0.0, lul);
+	cv::imwrite("test.png",lul);
+ 	
+*/
+
+
+
+/* 
 	std::for_each(data.begin(), data.end(),[&](std::tuple<double, cv::Point> p){
+
 		std::get<cv::Point>(p)/= std::get<double>(p);
 		std::cout << "Ratio: " << std::get<double>(p) << " Matchloc:" << std::get<cv::Point>(p) << std::endl;
 
 
-	});
+	}); */
+
+	//	rectangle( image, matchLoc, Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), Scalar(0,0,255), 2, 8, 0 );
+
 	/*
 	*	Heatmap:
 	*	Foreach scale/ratio:
@@ -167,5 +236,13 @@ void Matcher::MultiScaleMatching(){
 	*
 	*
 	*/
+
+}
+
+Matcher& Matcher::WriteImage(std::string name){
+	if (name.empty()){
+		name = this->filename;
+	}
+	cv::imwrite(name,this->image);
 
 }

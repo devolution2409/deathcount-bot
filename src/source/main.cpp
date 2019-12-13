@@ -26,7 +26,7 @@ int main( int argc, char** argv )
     
     matcher.SetImage(std::string(argv[1]))
             .SetTemplate(argv[2])
-            .SetMatchMethod(Matcher::MatchMethod::CV_TM_CCOEFF_NORMED)
+            .SetMatchMethod(Matcher::MatchMethod::CV_TM_CCORR_NORMED)
         ;
 
     //matcher.SingleMatch(); 

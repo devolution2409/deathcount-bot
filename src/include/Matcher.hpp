@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include "HeatMap.hpp"
+#include "lodepng.hpp"
 
 
 class Matcher{
@@ -86,6 +87,7 @@ class Matcher{
         MatchMethod matchMethod;
         ResizeType resizeMethod;
         std::string filename;
+        
 
     public:
         Matcher();
@@ -97,6 +99,7 @@ class Matcher{
         Matcher& SetMatchMethod(Matcher::MatchMethod method);
         Matcher& SetResizeMethod(Matcher::ResizeType method);
         Matcher& SetOutputFilename(std::string name);
+        Matcher& WriteImage(std::string name = "");
 
         cv::Point SingleMatch(bool drawBoundingBox = 0);
         // https://www.pyimagesearch.com/2015/01/26/multi-scale-template-matching-using-python-opencv/

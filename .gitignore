@@ -13,3 +13,4 @@ Makefile
 *.marks
 src/source/DethcountBot
 src/build/DethcountBot
+src/build/*.png
