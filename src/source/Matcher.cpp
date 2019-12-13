@@ -103,7 +103,7 @@ void Matcher::MultiScaleMatching(){
 	std::vector<std::tuple<double, cv::Point>> data;
 
 	float maxScale = 1, minScale = 0.2, stepNumber = 20 ,step = (maxScale - minScale) / stepNumber;
-	float ratio;
+	double ratio;
 	std::string filename = this->filename;
 	// we're going to need the dimension of the template
 	cv::Size s = this->_template.size();
@@ -121,7 +121,7 @@ void Matcher::MultiScaleMatching(){
 		//To shrink an image, it will generally look best with CV_INTER_AREA interpolation, whereas to enlarge an image, it will generally look best with CV_INTER_CUBIC (slow) or CV_INTER_LINEAR (faster but still looks OK).
 
 		cv::resize(originalImg, scaled, cv::Size(), i, i, Matcher::ResizeType::INTER_AREA);
-		ratio = originalImg.size().width / scaled.size().width;
+		ratio = static_cast<double>(originalImg.size().width) / static_cast<double>(scaled.size().width);
 
 		// compute scaled image size
 		s = scaled.size();
@@ -141,7 +141,10 @@ void Matcher::MultiScaleMatching(){
 	}
 
 
+	for_each(data.begin(),data.end(), [&](auto p){
 
+		std::cout << "Ratio: " << std::get<double>(p) << " Point: " << std::get<cv::Point>(p) <<std::endl;
+	});
 
 	/*
 	*	Heatmap:
