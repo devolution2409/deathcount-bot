@@ -98,7 +98,7 @@ class Matcher{
         Matcher& SetResizeMethod(Matcher::ResizeType method);
         Matcher& SetOutputFilename(std::string name);
 
-       cv::Point SingleMatch(bool drawBoundingBox = 0);
+        std::tuple<double, cv::Point> SingleMatch(bool drawBoundingBox = 0);
         // https://www.pyimagesearch.com/2015/01/26/multi-scale-template-matching-using-python-opencv/
         void MultiScaleMatching();
     
