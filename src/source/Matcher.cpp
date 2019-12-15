@@ -157,15 +157,27 @@ void Matcher::MultiScaleMatching(){
 		
 		cv::Point matchLoc = std::get<cv::Point>(p);
 
-
+	int lul = 0;
  		for (int x = matchLoc.x ; x < matchLoc.x + _template.cols; ++x){
 			for (int y = matchLoc.y ; y < matchLoc.y + _template.rows; ++y){
-				
-				heatmap_add_point(hm,  (matchLoc.x + x) / std::get<double>(p) , (matchLoc.y + y)/ std::get<double>(p));
-				
+				std::cout << std::endl << "LUL: " << lul << ": " <<  (matchLoc.x + x)  / std::get<double>(p)  << ":" <<  (matchLoc.y + y)/ std::get<double>(p);
+			//	heatmap_add_point(hm,  static_cast<double>((matchLoc.x + x) / std::get<double>(p)) /2.0, static_cast<double>((matchLoc.y + y)/ std::get<double>(p)) /2.0);
+		//		heatmap_add_point(hm,  static_cast<double>((matchLoc.x + x) / std::get<double>(p)), static_cast<double>((matchLoc.y + y)/ std::get<double>(p)));
+		        heatmap_add_point(hm,  static_cast<double>(x) / std::get<double>(p), static_cast<double>((y)/ std::get<double>(p)) );
+				lul++;	
 			}
 		}
-				rectangle( this->image, matchLoc, cv::Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), cv::Scalar(0,0,255), 2, 8, 0 );
+
+
+
+
+		heatmap_add_point(hm,  static_cast<double>((matchLoc.x ))					/ std::get<double>(p) , (matchLoc.y)					/ std::get<double>(p));
+     	heatmap_add_point(hm,  static_cast<double>((matchLoc.x)) 					/ std::get<double>(p) , (matchLoc.y + _template.rows)	/ std::get<double>(p));
+     	heatmap_add_point(hm,  static_cast<double>((matchLoc.x + _template.cols)) 	/ std::get<double>(p) , (matchLoc.y )					/ std::get<double>(p));
+     	heatmap_add_point(hm,  static_cast<double>((matchLoc.x + _template.cols)) 	/ std::get<double>(p) , (matchLoc.y + _template.rows)	/ std::get<double>(p));
+
+
+		rectangle( this->image, matchLoc, cv::Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), cv::Scalar(0,0,255), 2, 8, 0 );
 
 
 
