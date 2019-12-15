@@ -101,7 +101,7 @@ void Matcher::MultiScaleMatching(){
 	//found; ?
 	std::vector<std::tuple<double, cv::Point>> data;
 	
-	float maxScale = 1, minScale = 0.2, stepNumber = 1 ,step = (maxScale - minScale) / stepNumber;
+	float maxScale = 1, minScale = 0.2, stepNumber = 20 ,step = (maxScale - minScale) / stepNumber;
 	double ratio;
 	std::string filename = this->filename;
 	// we're going to need the dimension of the template
@@ -149,51 +149,39 @@ void Matcher::MultiScaleMatching(){
 	// heatmap_t* hm = heatmap_new(originalImg.size().width, originalImg.size().height);
 	// get the area of the stuff and scale the points to match original image size
 	// scale them
-	std::for_each(data.begin(), data.end(),[&](std::tuple<double, cv::Point> p){
+	heatmap_t* hm = heatmap_new(originalImg.size().width, originalImg.size().height);
+std::vector<unsigned char> heatmap(originalImg.size().width*originalImg.size().height*4);
+ 	std::for_each(data.begin(), data.end(),[&](std::tuple<double, cv::Point> p){
 
-		std::vector<unsigned char> heatmap(originalImg.size().width*originalImg.size().height*4);
-		heatmap_t* hm = heatmap_new(originalImg.size().width, originalImg.size().height);
-
+		 
+		
 		
 		cv::Point matchLoc = std::get<cv::Point>(p);
 
-	int lul = 0;
  		for (int x = matchLoc.x ; x < matchLoc.x + _template.cols; ++x){
 			for (int y = matchLoc.y ; y < matchLoc.y + _template.rows; ++y){
-				std::cout << std::endl << "LUL: " << lul << ": " <<  (matchLoc.x + x)  / std::get<double>(p)  << ":" <<  (matchLoc.y + y)/ std::get<double>(p);
-			//	heatmap_add_point(hm,  static_cast<double>((matchLoc.x + x) / std::get<double>(p)) /2.0, static_cast<double>((matchLoc.y + y)/ std::get<double>(p)) /2.0);
-		//		heatmap_add_point(hm,  static_cast<double>((matchLoc.x + x) / std::get<double>(p)), static_cast<double>((matchLoc.y + y)/ std::get<double>(p)));
 		        heatmap_add_point(hm,  static_cast<double>(x) / std::get<double>(p), static_cast<double>((y)/ std::get<double>(p)) );
-				lul++;	
 			}
 		}
+ 
 
 
-
-
-		heatmap_add_point(hm,  static_cast<double>((matchLoc.x ))					/ std::get<double>(p) , (matchLoc.y)					/ std::get<double>(p));
-     	heatmap_add_point(hm,  static_cast<double>((matchLoc.x)) 					/ std::get<double>(p) , (matchLoc.y + _template.rows)	/ std::get<double>(p));
-     	heatmap_add_point(hm,  static_cast<double>((matchLoc.x + _template.cols)) 	/ std::get<double>(p) , (matchLoc.y )					/ std::get<double>(p));
-     	heatmap_add_point(hm,  static_cast<double>((matchLoc.x + _template.cols)) 	/ std::get<double>(p) , (matchLoc.y + _template.rows)	/ std::get<double>(p));
-
-
-		rectangle( this->image, matchLoc, cv::Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), cv::Scalar(0,0,255), 2, 8, 0 );
-
-
-
-		    heatmap_render_default_to(hm, &heatmap[0]);
-			heatmap_free(hm); 
-		if(unsigned error = lodepng::encode((std::to_string(std::get<double>(p)) + "_" + std::string("heatmap.png")).c_str() , heatmap, originalImg.size().width,originalImg.size().height)) {
-    		    std::cerr << "encoder error " << error << ": "<< lodepng_error_text(error) << std::endl;
-        return;
-		this->WriteImage();
-		heatmap.clear();
-    }
+		//rectangle( this->image, matchLoc, cv::Point( matchLoc.x + _template.cols , matchLoc.y + _template.rows ), cv::Scalar(0,0,255), 2, 8, 0 );
+		
 
 
 	});
+	std::cout << "test";
+		    heatmap_render_default_to(hm, &heatmap[0]);
+			heatmap_free(hm); 
 
 
+ 	if(unsigned error = lodepng::encode("heatmap.png" , heatmap, originalImg.size().width,originalImg.size().height)) {
+    	std::cerr << "encoder error " << error << ": "<< lodepng_error_text(error) << std::endl;
+    	return;
+		this->WriteImage();
+		heatmap.clear();
+   	} 
 /*
 
  	std::vector<unsigned char> heatmap(originalImg.size().width*originalImg.size().height*4);
