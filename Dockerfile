@@ -44,12 +44,29 @@ WORKDIR /source/
 
 RUN Xvfb :322 &
 RUN export DISPLAY=:322
-RUN apt install -y tesseract-ocr  libtesseract-dev
+#RUN apt install -y tesseract-ocr  libtesseract-dev aptitude
+
+#leptonica
+RUN git clone https://github.com/DanBloomberg/leptonica.git && echo 'invalidating cache';
+#lksWORKDIR /source/leptonica/build
+#RUN cmake ../ && make
+# && make install
+#check if there s a tesseract folder
+
+
+#building tesseract
+#RUN git clone https://github.com/tesseract-ocr/tesseract.gitls && echo "kek";
+#WORKDIR /source/tesseract/build
+#RUN cmake ../
+
+
+#RUN aptitude install -y tesseract-ocr-all
 #COPY entrypoint.sh /root/entrypoint.sh
 
 #RUN sed -i 's/geteuid/getppid/' /usr/bin/vlc
 
 #todo: try with a shell script FeelsDankMan
+
 #doesnt work with entrypoint either
 #Xvfb :1
 

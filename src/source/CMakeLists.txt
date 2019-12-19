@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.1)
 
 find_package( OpenCV REQUIRED )
+find_package(Tesseract ${MINIMUM_TESSERACT_VERSION} REQUIRED)
+message("Found ${Tesseract_LIBRARIES}")
+find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED)
+message("Found ${Leptonica_LIBRARIES}")
 
     include_directories( ${OpenCV_INCLUDE_DIRS}
                ${PROJECT_SOURCE_DIR}/include/
