@@ -25,19 +25,36 @@
                     "severity": 4,
                     "message": 5
                 }
-            }
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
         },
         {
             "label": "Run Bash on Docker Image",
             "type": "shell",
             "promptOnClose": true,
-            "command": "docker run -it --rm -v /home/devolution/deathcount-bot/src/:/source/ deathcount-bot:latest",
+            "command": "docker run -it --rm -v ${workspaceFolder}/src/:/source/ deathcount-bot:latest",
             "group": "test",
             "presentation": {
                 "reveal": "always",
-                "panel": "new"
+                "panel": "dedicated"
             },
         },
-
+        {
+            "label": "(Branch Checkout) Run Bash on Docker Image",
+            "type": "shell",
+            "promptOnClose": true,
+            "command": "/bin/bash ./clean_cmake_artifacts.sh && docker run -it --rm -v ${workspaceFolder}/src/:/source/ deathcount-bot:latest",
+            "group": "test",
+            "options": {
+                "cwd": "${workspaceFolder}/src"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+        },
+        
     ]
 }
