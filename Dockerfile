@@ -44,6 +44,7 @@ WORKDIR /source/
 
 RUN Xvfb :322 &
 RUN export DISPLAY=:322
+RUN apt install -y tesseract-ocr  libtesseract-dev
 #COPY entrypoint.sh /root/entrypoint.sh
 
 #RUN sed -i 's/geteuid/getppid/' /usr/bin/vlc
