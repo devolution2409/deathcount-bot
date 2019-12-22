@@ -56,6 +56,7 @@ set(SOURCES
     Matcher.cpp
     HeatMap.cpp
     lodepng.cpp
+    EastDetector.cpp
     )
     
 set(HEADERS
