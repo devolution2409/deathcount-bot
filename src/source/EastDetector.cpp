@@ -71,6 +71,10 @@ void EastDetector::Detect(){
     blobFromImage(frame, blob, 1.0, cv::Size(inpWidth, inpHeight), cv::Scalar(123.68, 116.78, 103.94), true, false);
     net.setInput(blob);
     net.forward(outs, outNames);
+    for (cv::Mat i : outs){
+        std::cout << i;
+    }
+
     cv::Mat scores = outs[0];
     cv::Mat geometry = outs[1];
  
@@ -85,6 +89,8 @@ void EastDetector::Detect(){
     
     // Render detections.
     cv::Point2f ratio((float)frame.cols / inpWidth, (float)frame.rows / inpHeight);
+    // in working east branch: ratio:[3.2, 2]root@394bba6087c4:/source/build $ 
+    std::cout << "ratio:" << ratio;
     for (size_t i = 0; i < indices.size(); ++i)
     {
         RotatedRect& box = boxes[indices[i]];
