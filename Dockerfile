@@ -3,23 +3,48 @@
 FROM ubuntu:latest
 #trying new shit
 
-RUN apt-get update
-#  compiler
-RUN apt-get -y install build-essential
-#maybe uneeded
-RUN apt-get -y install ffmpeg
-# && apt-get -y install curl && apt-get -y install vim && apt-get -y install g++ &
-
-#required
-RUN apt-get -y install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
-
-#optional
-RUN apt-get -y install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
-
+#mb ffmpeg undeeded
+RUN apt-get update && \
+    apt-get -y install build-essential \
+                        ffmpeg \
+                        cmake \
+                        git \
+                        libgtk2.0-dev \
+                        pkg-config \
+                        libavcodec-dev \
+                        libavformat-dev \
+                        libswscale-dev \
+                        python-dev \
+                        python-numpy \
+                        libtbb2 \
+                        libtbb-dev \
+                        libjpeg-dev \
+                        libpng-dev \
+                        libtiff-dev \
+                        libdc1394-22-dev \
+                        libleptonica-dev
+                        
+ 
 #libjasper isn't available for older ubuntu and the following doesnt work, fuck it.
-#RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ yakkety universe" | tee -a /etc/apt/sources.list &&  apt-get -y install libjasper-dev
+#RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ yakkety universe" | tee -a /etc/apt/sources.list &&apt-get -y install libjasper-dev
 
-WORKDIR /source/
+#leptonica
+
+#building tesseract
+WORKDIR /opt/
+RUN git clone --single-branch --branch 4.1 https://github.com/tesseract-ocr/tesseract.git 
+
+WORKDIR /opt/tesseract/
+
+RUN ./autogen.sh 
+RUN ./configure
+RUN make
+RUN make install
+RUN ldconfig
+RUN make training-install
+
+
+WORKDIR /opt/
 
 RUN git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
 
@@ -28,46 +53,11 @@ RUN git clone https://github.com/opencv/opencv.git && git clone https://github.c
 RUN echo 'export PS1="\[\033[36m\]\u\[\033[m\]@\[\033[32m\]\h:\[\033[33;1m\]\w\[\033[m\] \\$ " ' >> ~/.bashrc
 
 
-WORKDIR /source/opencv/build
+WORKDIR /opt/opencv/build
 
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DOPENCV_EXTRA_MODULES_PATH=/source/opencv_contrib/modules /source/opencv 
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DOPENCV_EXTRA_MODULES_PATH=/opt/opencv_contrib/modules /opt/opencv 
 
 RUN make -j 4
 RUN make install
-#is this needed now??
-RUN apt-get -y download libc-bin && dpkg -x libc-bin*.deb unpackdir/ &&  cp unpackdir/sbin/ldconfig /sbin/ && apt-get install --reinstall libc-bin
-RUN apt-get -y install xvfb 
-
-#COPY ./src/  /source
-
-WORKDIR /source/
-
-RUN Xvfb :322 &
-RUN export DISPLAY=:322
-#RUN apt install -y tesseract-ocr  libtesseract-dev aptitude
-
-#leptonica
-RUN git clone https://github.com/DanBloomberg/leptonica.git && echo 'invalidating cache';
-#lksWORKDIR /source/leptonica/build
-#RUN cmake ../ && make
-# && make install
-#check if there s a tesseract folder
-
-
-#building tesseract
-#RUN git clone https://github.com/tesseract-ocr/tesseract.gitls && echo "kek";
-#WORKDIR /source/tesseract/build
-#RUN cmake ../
-
-
-#RUN aptitude install -y tesseract-ocr-all
-#COPY entrypoint.sh /root/entrypoint.sh
-
-#RUN sed -i 's/geteuid/getppid/' /usr/bin/vlc
-
-#todo: try with a shell script FeelsDankMan
-
-#doesnt work with entrypoint either
-#Xvfb :1
 
 CMD ["bash"]
