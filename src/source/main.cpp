@@ -13,9 +13,9 @@ using namespace cv;
 #include <tuple>
 #include <tesseract/baseapi.h>
 #include <leptonica/allheaders.h>
+#include "EastDetector.hpp"
 
-
-int main()
+/* int main()
 {
     char *outText;
 
@@ -40,15 +40,15 @@ int main()
 
     return 0;
 }
+ */
 
-/*
 int main( int argc, char** argv )
 {
+
+    /* if (false){
     Matcher matcher;
     
-  /// Load image and template
- // img = imread( argv[1], 1 );
-  //templ = imread( argv[2], 1 );
+  
     for (int i = 0; i < argc; ++i){
         std::cout << "lul:" << argv[i] << std::endl;
     }
@@ -61,5 +61,16 @@ int main( int argc, char** argv )
     //matcher.SingleMatch(); 
     matcher.MultiScaleMatching();
 
+    } */
+
+    EastDetector detector;
+
+    detector.SetImagePath("/source/tests/image3.jpg")
+    .Detect()
+    ;
+
+    
+
+
   return 0;
-}*/
+} 

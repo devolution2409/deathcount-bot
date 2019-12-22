@@ -1,5 +1,11 @@
 #pragma once
 #include <string>
+#include <vector>
+#include <opencv2/opencv.hpp>
+using cv::RotatedRect;
+
+#include <iostream>
+
 
 class EastDetector{
 
@@ -13,17 +19,22 @@ class EastDetector{
     float nmsThreshold; //Non-maximum suppression threshold. 
 
 
+    void Decode(const cv::Mat& scores, const cv::Mat& geometry, float scoreThresh,
+        std::vector<RotatedRect>& detections, std::vector<float>& confidences); 
+
+
   public:
+
 
     EastDetector();
     ~EastDetector();
-    EastDetector& SetModelPath(std::string & path);
-    EastDetector& SetImagePath(std::string & path);
+    EastDetector& SetModelPath(std::string path);
+    EastDetector& SetImagePath(std::string path);
     EastDetector& SetPreProcessWidth(int width);
     EastDetector& SetPreProcessHeight(int height);
     EastDetector& SetConfidenceThreshold(float threshold);
     EastDetector& SetNonMaximumSuppresionThreshold(float threshold);
 
-
+    void Detect();
 
 };
