@@ -43,15 +43,77 @@ EastDetector& EastDetector::SetNonMaximumSuppresionThreshold(float threshold){
     return *this;
 }
 
+void EastDetector::Detect(){
+    using namespace cv::dnn;
+    float confThreshold = this->confThreshold;
+    float nmsThreshold = this->nmsThreshold;
+    int inpWidth = this->inpWidth;
+    int inpHeight =  this->inpHeight;
+    cv::String model = this->modelPath;
+
+    CV_Assert(!model.empty());
+
+    // Load network.
+    Net net = readNet(model);
+
+    cv::Mat frame, blob;
+    // Open a video file or an image file or a camera stream.
+    cv::VideoCapture cap;
+    cap.open(this->imagePath);
+    cap >> frame;
+
+    std::vector<cv::Mat> outs;
+    std::vector<cv::String> outNames(2);
+    outNames[0] = "feature_fusion/Conv_7/Sigmoid";
+    outNames[1] = "feature_fusion/concat_3";
+
+
+    blobFromImage(frame, blob, 1.0, cv::Size(inpWidth, inpHeight), cv::Scalar(123.68, 116.78, 103.94), true, false);
+    net.setInput(blob);
+    net.forward(outs, outNames);
+    cv::Mat scores = outs[0];
+    cv::Mat geometry = outs[1];
+ 
+    // Decode predicted bounding boxes.
+    std::vector<RotatedRect> boxes;
+    std::vector<float> confidences;
+    this->Decode(scores, geometry, confThreshold, boxes, confidences);
+ 
+    // Apply non-maximum suppression procedure.
+    std::vector<int> indices;
+    cv::dnn::NMSBoxes(boxes, confidences, confThreshold, nmsThreshold, indices);
+    
+    // Render detections.
+    cv::Point2f ratio((float)frame.cols / inpWidth, (float)frame.rows / inpHeight);
+    for (size_t i = 0; i < indices.size(); ++i)
+    {
+        RotatedRect& box = boxes[indices[i]];
+         cv::Point2f vertices[4];
+        box.points(vertices);
+        for (int j = 0; j < 4; ++j)
+        {
+            vertices[j].x *= ratio.x;
+            vertices[j].y *= ratio.y;
+        }
+        for (int j = 0; j < 4; ++j)
+            line(frame, vertices[j], vertices[(j + 1) % 4], cv::Scalar(0, 255, 0), 1);
+    }
+ 
+    // Put efficiency information.
+    std::vector<double> layersTimes;
+    double freq = cv::getTickFrequency() / 1000;
+    double t = net.getPerfProfile(layersTimes) / freq;
+    std::string label = cv::format("Inference time: %.2f ms", t);
+    cv::putText(frame, label, cv::Point(0, 15), cv::HersheyFonts::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0));
+    cv::imwrite("test.png",frame);
+    //imshow(kWinName, frame);
+}
+
 
 void EastDetector::Decode(const cv::Mat& scores, const cv::Mat& geometry, float scoreThresh,
             std::vector<RotatedRect>& detections, std::vector<float>& confidences)
 {
-
-    using cv::Point2f;
-    using cv::Size2f;
-    using cv::RotatedRect;
- detections.clear();
+    detections.clear();
     CV_Assert(scores.dims == 4); CV_Assert(geometry.dims == 4); CV_Assert(scores.size[0] == 1);
     CV_Assert(geometry.size[0] == 1); CV_Assert(scores.size[1] == 1); CV_Assert(geometry.size[1] == 5);
     CV_Assert(scores.size[2] == geometry.size[2]); CV_Assert(scores.size[3] == geometry.size[3]);
@@ -81,100 +143,14 @@ void EastDetector::Decode(const cv::Mat& scores, const cv::Mat& geometry, float 
             float h = x0_data[x] + x2_data[x];
             float w = x1_data[x] + x3_data[x];
 
-            Point2f offset(offsetX + cosA * x1_data[x] + sinA * x2_data[x],
+            cv::Point2f offset(offsetX + cosA * x1_data[x] + sinA * x2_data[x],
                            offsetY - sinA * x1_data[x] + cosA * x2_data[x]);
-            Point2f p1 = Point2f(-sinA * h, -cosA * h) + offset;
-            Point2f p3 = Point2f(-cosA * w, sinA * w) + offset;
-            RotatedRect r(0.5f * (p1 + p3), Size2f(w, h), -angle * 180.0f / (float)CV_PI);
+            cv::Point2f p1 = cv::Point2f(-sinA * h, -cosA * h) + offset;
+            cv::Point2f p3 = cv::Point2f(-cosA * w, sinA * w) + offset;
+            RotatedRect r(0.5f * (p1 + p3), cv::Size2f(w, h), -angle * 180.0f / (float)CV_PI);
             detections.push_back(r);
             confidences.push_back(score);
+            std::cout << "made it;";
         }
     }
-}
-
-void EastDetector::Detect(){
-   // parser.about("Use this script to run TensorFlow implementation (https://github.com/argman/EAST) of "
-         //         "EAST: An Efficient and Accurate Scene Text Detector (https://arxiv.org/abs/1704.03155v2)");
-
-    
-    std::cout << "hallo zuuluul";
-    using namespace cv::dnn; //neural network
-    using cv::Point;
-    using cv::Mat;
-    //TODO: replace by stdstring
-    using cv::String;
-    using cv::Scalar;
-    using cv::HersheyFonts;
-    using cv::Point2f;
-    
-
-    cv::String model = this->modelPath;
-    CV_Assert(!model.empty());
-
-    // Load network.
-    Net net = readNet(model);
-    
-    std::vector<Mat> outs;
-    std::vector<String> outNames(2);
-    outNames[0] = "feature_fusion/Conv_7/Sigmoid";
-    outNames[1] = "feature_fusion/concat_3";
-
-
-    cv::Mat frame, blob;
-    std::cout << this->inpWidth << " " << this->inpHeight;
-
-    //TODO: can we avoid usuing VideoCapture anyway
-    //cap >> frame;
-    frame = cv::imread(this->imagePath);
-
-    blobFromImage(frame, blob, 1.0, cv::Size(this->inpWidth, this->inpHeight), Scalar(123.68, 116.78, 103.94), true, false);
-    
-    net.setInput(blob);
-    net.forward(outs, outNames);
-
-    cv::Mat scores = outs[0];
-
-    
-    cv::Mat geometry = outs[1];
-
-    // Decode predicted bounding boxes.
-    std::vector<RotatedRect> boxes;
-    std::vector<float> confidences;
-     std::cout << "hallo";
-    this->Decode(scores, geometry, this->confThreshold, boxes, confidences);
-     // Apply non-maximum suppression procedure.
-    for (auto i: confidences){
-        std::cout << i;
-    }
-
-    std::vector<int> indices;
-    std::cout << "hallo";
-    cv::dnn::NMSBoxes(boxes, confidences, this->confThreshold, this->nmsThreshold, indices);
-     std::cout << "here" << indices.size();
-     // Render detections.
-    Point2f ratio((float)frame.cols / this->inpWidth, (float)frame.rows / this->inpHeight);
-    for (size_t i = 0; i < indices.size(); ++i)
-    {
-        std::cout << "gneu";
-        RotatedRect& box = boxes[indices[i]];
-        Point2f vertices[4];
-        box.points(vertices);
-        for (int j = 0; j < 4; ++j)
-        {
-            vertices[j].x *= ratio.x;
-            vertices[j].y *= ratio.y;
-        }
-        for (int j = 0; j < 4; ++j)
-            line(frame, vertices[j], vertices[(j + 1) % 4], Scalar(0, 255, 0), 1);
-    }
-
-    // Put efficiency information.
-    std::vector<double> layersTimes;
-    double freq = cv::getTickFrequency() / 1000;
-    double t = net.getPerfProfile(layersTimes) / freq;
-    std::string label = cv::format("Inference time: %.2f ms", t);
-    cv::putText(frame, label, Point(0, 15), HersheyFonts::FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0));
-    cv::imwrite("test.png",frame);
-
-    
 }
