@@ -4,8 +4,8 @@
 EastDetector::EastDetector(){
     //set default values
     std::cout << "hello";
-    this->inpWidth  = 32;
-    this->inpHeight = 32;
+    this->inpWidth  = 320;
+    this->inpHeight = 320;
     this->confThreshold = 0.5;
     this->nmsThreshold = 0.4;
     this->modelPath = "/source/model/frozen_east_text_detection.pb";
@@ -43,7 +43,7 @@ EastDetector& EastDetector::SetNonMaximumSuppresionThreshold(float threshold){
     return *this;
 }
 
-void EastDetector::Detect(){
+void EastDetector::Detect(bool renderPicture){
     using namespace cv::dnn;
     float confThreshold = this->confThreshold;
     float nmsThreshold = this->nmsThreshold;
@@ -70,10 +70,9 @@ void EastDetector::Detect(){
 
     blobFromImage(frame, blob, 1.0, cv::Size(inpWidth, inpHeight), cv::Scalar(123.68, 116.78, 103.94), true, false);
     net.setInput(blob);
+    //void cv::dnn::Net::forward	(	std::vector< std::vector< Mat > > & 	outputBlobs, const std::vector< String > & 	outBlobNames )	
     net.forward(outs, outNames);
-    for (cv::Mat i : outs){
-        std::cout << i;
-    }
+    
 
     cv::Mat scores = outs[0];
     cv::Mat geometry = outs[1];
@@ -88,30 +87,33 @@ void EastDetector::Detect(){
     cv::dnn::NMSBoxes(boxes, confidences, confThreshold, nmsThreshold, indices);
     
     // Render detections.
-    cv::Point2f ratio((float)frame.cols / inpWidth, (float)frame.rows / inpHeight);
-    // in working east branch: ratio:[3.2, 2]root@394bba6087c4:/source/build $ 
-    std::cout << "ratio:" << ratio;
+    cv::Point2f ratio( static_cast<float>(frame.cols / inpWidth), static_cast<float>(frame.rows / inpHeight));
+    
+ 
     for (size_t i = 0; i < indices.size(); ++i)
     {
         RotatedRect& box = boxes[indices[i]];
-         cv::Point2f vertices[4];
-        box.points(vertices);
+        //cv::Point2f vertices[4];
+        box.points(this->vertices);
         for (int j = 0; j < 4; ++j)
         {
-            vertices[j].x *= ratio.x;
-            vertices[j].y *= ratio.y;
+            this->vertices[j].x *= ratio.x;
+            this->vertices[j].y *= ratio.y;
         }
-        for (int j = 0; j < 4; ++j)
-            line(frame, vertices[j], vertices[(j + 1) % 4], cv::Scalar(0, 255, 0), 1);
     }
- 
-    // Put efficiency information.
-    std::vector<double> layersTimes;
-    double freq = cv::getTickFrequency() / 1000;
-    double t = net.getPerfProfile(layersTimes) / freq;
-    std::string label = cv::format("Inference time: %.2f ms", t);
-    cv::putText(frame, label, cv::Point(0, 15), cv::HersheyFonts::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0));
-    cv::imwrite("test.png",frame);
+    if (renderPicture)
+    {
+        for (int j = 0; j < 1; ++j)
+            line(frame, this->vertices[j], this->vertices[(j + 1) % 4], cv::Scalar(0, 255, 0), 1);
+        // Put efficiency information.
+        std::vector<double> layersTimes;
+        double freq = cv::getTickFrequency() / 1000;
+        double t = net.getPerfProfile(layersTimes) / freq;
+        std::string label = cv::format("Inference time: %.2f ms", t);
+        cv::putText(frame, label, cv::Point(0, 15), cv::HersheyFonts::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0));
+        cv::imwrite("test.png",frame);
+
+    }
     //imshow(kWinName, frame);
 }
 
@@ -156,7 +158,24 @@ void EastDetector::Decode(const cv::Mat& scores, const cv::Mat& geometry, float 
             RotatedRect r(0.5f * (p1 + p3), cv::Size2f(w, h), -angle * 180.0f / (float)CV_PI);
             detections.push_back(r);
             confidences.push_back(score);
-            std::cout << "made it;";
         }
     }
+}
+
+
+//        for (int j = 0; j < 1; ++j)
+ //           line(frame, this->vertices[j], this->vertices[(j + 1) % 4], cv::Scalar(0, 255, 0), 1);
+
+
+int EastDetector::GetOCRLeft(){
+
+}
+int EastDetector::GetOCRTop(){
+
+}
+int EastDetector::GetOCRWidth(){
+
+}
+int EastDetector::GetOCRHeight(){
+
 }

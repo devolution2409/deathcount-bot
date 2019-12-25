@@ -66,7 +66,7 @@ int main( int argc, char** argv )
     EastDetector detector;
 
     detector.SetImagePath("/source/tests/image3.jpg")
-    .Detect()
+    .Detect(true)
     ;
 
     

@@ -18,6 +18,7 @@ class EastDetector{
     float confThreshold; //Confidence threshold.
     float nmsThreshold; //Non-maximum suppression threshold. 
 
+    cv::Point2f vertices[4];
 
     void Decode(const cv::Mat& scores, const cv::Mat& geometry, float scoreThresh,
         std::vector<RotatedRect>& detections, std::vector<float>& confidences); 
@@ -34,7 +35,14 @@ class EastDetector{
     EastDetector& SetPreProcessHeight(int height);
     EastDetector& SetConfidenceThreshold(float threshold);
     EastDetector& SetNonMaximumSuppresionThreshold(float threshold);
+    
+    //call SetRectangle(left, top, width, height
+    int GetOCRLeft();
+    int GetOCRTop();
+    int GetOCRWidth();
+    int GetOCRHeight();
 
-    void Detect();
+    void Detect(bool renderPicture = false);
+    
 
 };
