@@ -44,7 +44,24 @@ using namespace cv;
 
 int main( int argc, char** argv )
 {
+    std::string streamUrl;
+    if (argc < 2 )
+    {
+        return 1;
+    }
+    else
+    { 
+        std::cout << "setting stream URL";
+        streamUrl = argv[1];   
+        
+    }
+    
+    
+    //get the url i guess
+
+    
     char *outText;
+
 
     tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
     // Initialize tesseract-ocr with English, without specifying tessdata path
@@ -54,21 +71,46 @@ int main( int argc, char** argv )
     }
 
     // Open input image with leptonica library
-    Pix *image = pixRead("/source/tests/template3.jpg");
-    api->SetImage(image);
-// SetRectangle(left, top, width, height) 
-  //  api->SetRectangle(300, 280, 600, 150);
+    //Pix *image = pixRead("/source/tests/image3.jpg");
+    
+    
+    cv::VideoCapture cap;
+    cap.open(streamUrl.c_str());
+    cv::Mat image;
+
+    while(1){
+
+
+    if(!cap.read(image)) {
+            std::cout << "No frame" << std::endl;
+    }else
+    {
+        api->SetImage(image.data, image.cols, image.rows, 4, 4*image.cols);
+     //   api->SetImage(image);
+       // cv::imwrite("test2.png",image);
+    }
+    
+
+    // SetRectangle(left, top, width, height) 
+   // api->SetRectangle(200, 250, 600, 150);
     // Get OCR result
     outText = api->GetUTF8Text();
-    printf("OCR output:\n%s", outText);
+  
+
+    std::string test = outText;
+
+    if (test.find("YOU DIED") != std::string::npos|| test.find("YOUDIED")  != std::string::npos){
+        std::cout << "LOL U DIED; LOL LOL U DIED;";
+    }
 
     // Destroy used object and release memory
-    api->End();
+  
     delete [] outText;
-    pixDestroy(&image);
+    //image.release();
+    //pixDestroy(&image);
 
-    return 0;
+    }
 
+    api->End();
 
-  return 0;
 } 
