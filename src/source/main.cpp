@@ -44,32 +44,30 @@ using namespace cv;
 
 int main( int argc, char** argv )
 {
+    char *outText;
 
-    /* if (false){
-    Matcher matcher;
-    
-  
-    for (int i = 0; i < argc; ++i){
-        std::cout << "lul:" << argv[i] << std::endl;
+    tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
+    // Initialize tesseract-ocr with English, without specifying tessdata path
+    if (api->Init(NULL, "eng")) { 
+        fprintf(stderr, "Could not initialize tesseract.\n");
+        exit(1);
     }
-    
-    matcher.SetImage(std::string(argv[1]))
-            .SetTemplate(argv[2])
-            .SetMatchMethod(Matcher::MatchMethod::CV_TM_CCORR_NORMED)
-        ;
 
-    //matcher.SingleMatch(); 
-    matcher.MultiScaleMatching();
+    // Open input image with leptonica library
+    Pix *image = pixRead("/source/tests/template3.jpg");
+    api->SetImage(image);
+// SetRectangle(left, top, width, height) 
+  //  api->SetRectangle(300, 280, 600, 150);
+    // Get OCR result
+    outText = api->GetUTF8Text();
+    printf("OCR output:\n%s", outText);
 
-    } */
+    // Destroy used object and release memory
+    api->End();
+    delete [] outText;
+    pixDestroy(&image);
 
-    EastDetector detector;
-
-    detector.SetImagePath("/source/tests/image3.jpg")
-    .Detect(true)
-    ;
-
-    
+    return 0;
 
 
   return 0;

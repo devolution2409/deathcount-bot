@@ -60,4 +60,17 @@ RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DOPENCV_
 RUN make -j 4
 RUN make install
 
+
+WORKDIR /usr/local/share/tessdata
+RUN apt-get update && apt-get install -y wget && wget https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata
+WORKDIR /source/
+
+#doesnt work using that font pajapepe guess we have to find a way to train it better
+#COPY ./traineddata/OptimusPrinceps.traineddata    /usr/local/share/tessdata/OptimusPrinceps.traineddata
+
+#need to find out how to trian myself 
+#COPY ./fonts/OptimusPrinceps /usr/share/fonts/truetype/OptimusPrinceps
+
+
+
 CMD ["bash"]

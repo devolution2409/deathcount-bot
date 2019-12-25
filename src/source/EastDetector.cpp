@@ -103,8 +103,20 @@ void EastDetector::Detect(bool renderPicture){
     }
     if (renderPicture)
     {
-        for (int j = 0; j < 1; ++j)
+        std::cout << std::endl;
+        for (int j = 0; j < 4; ++j){
+            /*
+                0 1
+                1 2
+                2 3
+                3 0
+
+            */
+
+            std::cout << "j: " << j << " (j + 1) % 4" << (j + 1) % 4 <<  " this->vertices[j]: " << this->vertices[j] 
+            << " this->vertices[(j + 1) % 4]: " <<  this->vertices[(j + 1) % 4] << std::endl;
             line(frame, this->vertices[j], this->vertices[(j + 1) % 4], cv::Scalar(0, 255, 0), 1);
+        }
         // Put efficiency information.
         std::vector<double> layersTimes;
         double freq = cv::getTickFrequency() / 1000;
@@ -163,10 +175,14 @@ void EastDetector::Decode(const cv::Mat& scores, const cv::Mat& geometry, float 
 }
 
 
-//        for (int j = 0; j < 1; ++j)
- //           line(frame, this->vertices[j], this->vertices[(j + 1) % 4], cv::Scalar(0, 255, 0), 1);
 
-
+                /*
+                
+                    line(frame, this->vertices[j], this->vertices[(j + 1) % 4], cv::Scalar(0, 255, 0), 1);
+                    0 1
+                    1 2
+                    2 3
+                    3 0*/
 int EastDetector::GetOCRLeft(){
 
 }
