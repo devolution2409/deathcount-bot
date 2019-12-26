@@ -52,4 +52,16 @@ https://www.pyimagesearch.com/2017/07/10/using-tesseract-ocr-python/
 
 TODO:
 
-Add english trained data in tessdata using wget
+~~Add english trained data in tessdata using wget~~
+
+[ ] Add proper argv parsing
+    [ ] --streamer the streamer name. To be converted to a stream url.
+    [ ] --force-game [id=12345, name="TriHard"] force config to a game name or a game ID
+     
+    
+[ ] Move the main into dedicated OCR class
+[ ] Add config files / db for settings / which text to search for (example: DethcountBot.config)
+    [ ] Implement matching functions for case insensitive search and removal of accent etc
+    [ ] Use twitch API to get streamer currently played game and use that config. Add arg to force a config
+    [ ] Add fallback config
+[ ] Get currently played game from twitch API and then use the correct game config
