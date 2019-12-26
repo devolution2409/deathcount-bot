@@ -86,7 +86,7 @@ int main(int argc, char** argv)
         }
         else {
             // 30 fps
-            if (static_cast<int>(cap.get(1)) == 0 || static_cast<int>(cap.get(1)) % 30 == 0) {
+            if (static_cast<int>(cap.get(1)) == 1 || static_cast<int>(cap.get(1)) % 30 == 0) {
                 std::cout << "capget" << cap.get(1);
 
                 std::string name = "temp" + std::to_string(cap.get(1)) + ".png";
