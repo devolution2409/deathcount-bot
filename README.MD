@@ -65,3 +65,5 @@ TODO:
     [ ] Use twitch API to get streamer currently played game and use that config. Add arg to force a config
     [ ] Add fallback config
 [ ] Get currently played game from twitch API and then use the correct game config
+[ ] Add sigint handling
+[ ] format readme correctly LOOOL 4HEad
