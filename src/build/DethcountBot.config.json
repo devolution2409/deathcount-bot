@@ -1,0 +1,28 @@
+{
+    "config": [
+        {
+            "game": "Dark Souls: Remastered",
+            "ID": "123456",
+            "method": {
+                "type": "OCR",
+                "params": [
+                    "VOUS ETES MORTS",
+                    "YOU DIED"
+                ]
+            },
+            "deathCooldown": "1"
+        },
+        {
+            "game": "Another Game",
+            "ID": "579845",
+            "method": {
+                "type": "lua",
+                "params": [
+                    "luaFile.lua"
+                ]
+            },
+            "deathCooldown": "1"
+        }
+    ],
+    "version": 1
+}
