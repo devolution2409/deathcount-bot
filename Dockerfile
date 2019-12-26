@@ -65,6 +65,11 @@ WORKDIR /usr/local/share/tessdata
 RUN apt-get update && apt-get install -y wget && wget https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata
 WORKDIR /source/
 
+RUN apt-get install -y software-properties-common && \
+add-apt-repository ppa:ubuntu-toolchain-r/test && \
+apt-get update -y && \
+apt-get install -y gcc-8 g++-8 && \
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 60 --slave /usr/bin/g++ g++ /usr/bin/g++-8
 #doesnt work using that font pajapepe guess we have to find a way to train it better
 #COPY ./traineddata/OptimusPrinceps.traineddata    /usr/local/share/tessdata/OptimusPrinceps.traineddata
 
