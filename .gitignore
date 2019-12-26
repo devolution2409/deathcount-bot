@@ -14,3 +14,8 @@ Makefile
 src/source/DethcountBot
 src/build/DethcountBot
 src/build/*.png
+src/build/log.txt
+fonts/OptimusPrinceps/OptimusPrinceps.ttf
+fonts/OptimusPrinceps/OptimusPrincepsSemiBold.ttf
+traineddata/OptimusPrinceps.traineddata
+src/source/LidlDetector.cpp
