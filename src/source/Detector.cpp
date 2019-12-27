@@ -202,13 +202,14 @@ Detector& Detector::ReadConfig(std::string path, int gameID)
                 // account for int inside quotation mark in the json
                 if ((i["ID"].IsString() && i["ID"].GetString() == std::to_string(gameID)) ||
                     ((i["ID"].IsInt() && i["ID"].GetInt() == gameID))) {
+
                     std::cout << "Found game configuration for game ID: " << gameID
                               << std::endl;
                     // assert we have what we need
                     assert(i.HasMember("method"));
                     assert(i["method"].HasMember("type"));
                     assert(i["method"].HasMember("params"));
-
+                    assert(i["method"]["params"].IsArray());
                     // Fetch detector type
                     if (i["method"]["type"] == "OCR") {
                         this->type = Detector::Type::OCR;
