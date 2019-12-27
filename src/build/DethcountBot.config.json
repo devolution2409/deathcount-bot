@@ -2,7 +2,7 @@
     "config": [
         {
             "game": "Dark Souls: Remastered",
-            "ID": "123456",
+            "ID": 123456,
             "method": {
                 "type": "OCR",
                 "params": [
@@ -14,7 +14,7 @@
         },
         {
             "game": "Another Game",
-            "ID": "579845",
+            "ID": 579845,
             "method": {
                 "type": "lua",
                 "params": [

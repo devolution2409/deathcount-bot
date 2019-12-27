@@ -175,3 +175,61 @@ int Detector::Work()
 
     return 0; // done working
 }
+
+Detector& Detector::ReadConfig(std::string path, int gameID)
+{
+    // read the file
+    std::ifstream t(path);
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+    std::string config = buffer.str();
+    // create json object
+    rapidjson::Document document;
+    //  std::cout << "here";
+    // std::cout << response;
+    document.Parse(config.c_str());
+
+    /* Tons of assertion */
+    assert(document.IsObject());
+    assert(document.HasMember("version"));
+    assert(document.HasMember("config"));
+    assert(document["config"].IsArray());
+    // version 1
+    if (document["version"].GetInt() == 1) {
+        for (auto& i : document["config"].GetArray()) {
+            // all games without IDs aren't valid so we skip them
+            if (i.HasMember("ID")) {
+                // account for int inside quotation mark in the json
+                if ((i["ID"].IsString() && i["ID"].GetString() == std::to_string(gameID)) ||
+                    ((i["ID"].IsInt() && i["ID"].GetInt() == gameID))) {
+                    std::cout << "Found game configuration for game ID: " << gameID
+                              << std::endl;
+                    // assert we have what we need
+                    assert(i.HasMember("method"));
+                    assert(i["method"].HasMember("type"));
+                    assert(i["method"].HasMember("params"));
+
+                    // Fetch detector type
+                    if (i["method"]["type"] == "OCR") {
+                        this->type = Detector::Type::OCR;
+                    }
+                    else if (i["method"]["type"] == "LUA") {
+                        this->type = Detector::Type::LUA;
+                    }
+                    else {
+                        this->type = Detector::Type::UNKNOWN;
+                    }
+
+                    // Fetch list of params
+                    for (auto& k : i["method"]["params"].GetArray()) {
+                        assert(k.IsString());
+                        this->params.push_back(k.GetString());
+                    }
+                }
+                else
+                    std::cout << "vi lost";
+            }
+        }
+    }
+    return *this;
+}
