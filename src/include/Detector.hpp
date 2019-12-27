@@ -25,6 +25,9 @@ class Detector {
 
   private:
     enum Type { OCR, LUA };
+
+    std::string quality;
+
     std::string streamer;
 
     std::string streamUrl;
@@ -44,5 +47,15 @@ class Detector {
 
     int dethCount;
 };
-
+/**
+ * @brief To be able to write cUrl output to a std::string
+ * Use    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+ *        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response); // response being std::string
+ *
+ * @param contents
+ * @param size
+ * @param nmemb
+ * @param userp
+ * @return size_t
+ */
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);

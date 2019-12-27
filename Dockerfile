@@ -69,6 +69,8 @@ RUN make install
 
 WORKDIR /usr/local/share/tessdata
 RUN apt-get update && apt-get install -y wget && wget https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata
-WORKDIR /source/
 
+RUN apt-get update && apt-get install -y libboost-all-dev
+
+WORKDIR /source/
 CMD ["bash"]

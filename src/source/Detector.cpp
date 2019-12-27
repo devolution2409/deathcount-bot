@@ -93,6 +93,7 @@ bool Detector::FetchStreamUrls()
                 if (document["urls"].HasMember(i)) {
                     std::cout << "Highest quality found:" << i << std::endl;
                     this->streamUrl = document["urls"][i].GetString();
+                    this->quality = i;
                     return true;
                     // break;
                 }
@@ -112,6 +113,9 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
 
 int Detector::Work()
 {
+    if (this->streamer.empty()) {
+        return 3; // no valid streamer provided at this point
+    }
     // If we can't find anything we return
     if (!this->FetchStreamUrls()) {
         std::cout << "No stream found" << std::endl;

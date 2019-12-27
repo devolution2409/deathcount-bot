@@ -51,6 +51,9 @@ MESSAGE(STATUS "LEPTONICA_INCLUDE_DIRS   ${LEPTONICA_INCLUDE_DIRS}")
 
 
 
+FIND_PACKAGE(Boost COMPONENTS program_options REQUIRED)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+
 set(SOURCES
     main.cpp
     Matcher.cpp
@@ -156,6 +159,7 @@ target_link_libraries(  DethcountBot
                         ${LIB_GIF}
                         ${LIB_OPENJP2}
                         ${LIB_CURL}
+                        ${Boost_LIBRARIES}
                         )
 
 
