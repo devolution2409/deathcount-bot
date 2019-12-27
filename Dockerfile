@@ -6,25 +6,31 @@ FROM ubuntu:latest
 #mb ffmpeg undeeded
 RUN apt-get update && \
     apt-get -y install build-essential \
-                        ffmpeg \
-                        cmake \
-                        git \
-                        libgtk2.0-dev \
-                        pkg-config \
-                        libavcodec-dev \
-                        libavformat-dev \
-                        libswscale-dev \
-                        python-dev \
-                        python-numpy \
-                        libtbb2 \
-                        libtbb-dev \
-                        libjpeg-dev \
-                        libpng-dev \
-                        libtiff-dev \
-                        libdc1394-22-dev \
-                        libleptonica-dev
-                        
- 
+    ffmpeg \
+    cmake \
+    git \
+    libgtk2.0-dev \
+    pkg-config \
+    libavcodec-dev \
+    libavformat-dev \
+    libswscale-dev \
+    python-dev \
+    python-numpy \
+    libtbb2 \
+    libtbb-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libtiff-dev \
+    libdc1394-22-dev \
+    libleptonica-dev \
+    libcurl4-openssl-dev \
+    software-properties-common && \
+    add-apt-repository ppa:ubuntu-toolchain-r/test && \
+    apt-get update -y && \
+    apt-get install -y gcc-8 g++-8 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 60 --slave /usr/bin/g++ g++ /usr/bin/g++-8
+
+
 #libjasper isn't available for older ubuntu and the following doesnt work, fuck it.
 #RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ yakkety universe" | tee -a /etc/apt/sources.list &&apt-get -y install libjasper-dev
 
@@ -64,18 +70,5 @@ RUN make install
 WORKDIR /usr/local/share/tessdata
 RUN apt-get update && apt-get install -y wget && wget https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata
 WORKDIR /source/
-
-RUN apt-get install -y software-properties-common && \
-add-apt-repository ppa:ubuntu-toolchain-r/test && \
-apt-get update -y && \
-apt-get install -y gcc-8 g++-8 && \
-update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 60 --slave /usr/bin/g++ g++ /usr/bin/g++-8
-#doesnt work using that font pajapepe guess we have to find a way to train it better
-#COPY ./traineddata/OptimusPrinceps.traineddata    /usr/local/share/tessdata/OptimusPrinceps.traineddata
-
-#need to find out how to trian myself 
-#COPY ./fonts/OptimusPrinceps /usr/share/fonts/truetype/OptimusPrinceps
-
-
 
 CMD ["bash"]

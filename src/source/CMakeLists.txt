@@ -57,8 +57,9 @@ set(SOURCES
     HeatMap.cpp
     lodepng.cpp
     EastDetector.cpp
+    Detector.cpp
     )
-    
+#idk why headers are not needed loool
 set(HEADERS
    # Matcher.hpp
     )
@@ -126,6 +127,21 @@ FIND_LIBRARY(LIB_OPENJP2
   PATHS 
   /usr/lib/x86_64-linux-gnu
 )
+
+FIND_LIBRARY(LIB_CURL 
+  NAMES 
+libcurl.so
+libcurl.so.4
+libcurl.so.4.5.0
+libcurl-gnutls.so.3
+libcurl-gnutls.so.4
+libcurl-gnutls.so.4.5.0
+libcurl.a
+libcurl.la
+  PATHS 
+  /usr/lib/x86_64-linux-gnu
+)
+
 # Make sure you link your targets with this command. It can also link libraries and
 # even flags, so linking a target that does not exist will not give a configure-time error.
 target_link_libraries(  DethcountBot
@@ -139,6 +155,7 @@ target_link_libraries(  DethcountBot
                         ${LIB_TIFF}
                         ${LIB_GIF}
                         ${LIB_OPENJP2}
+                        ${LIB_CURL}
                         )
 
 

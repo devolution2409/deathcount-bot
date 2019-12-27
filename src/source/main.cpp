@@ -6,19 +6,18 @@
 #include <iostream>
 #include <stdio.h> */
 using namespace cv;
-#include "EastDetector.hpp"
-#include "Matcher.hpp"
+
 #include <iostream>
 #include <leptonica/allheaders.h>
 #include <string>
 #include <tesseract/baseapi.h>
 #include <tuple>
 
-#include <filesystem>
-namespace fs = std::filesystem;
-
+//#include <filesystem>
+// namespace fs = std::filesystem;
 #include <cstdio>
 
+#include "Detector.hpp"
 //#include <filesystem>
 
 /* int main()
@@ -64,6 +63,11 @@ int main(int argc, char** argv)
         std::cout << "setting stream URL";
         streamUrl = argv[1];
     }
+
+    Detector detector;
+    detector.SetStreamer(streamUrl).Work();
+
+    return 0;
 
     tesseract::TessBaseAPI* api = new tesseract::TessBaseAPI();
     // Initialize tesseract-ocr with English, without specifying tessdata path
