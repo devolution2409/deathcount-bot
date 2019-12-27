@@ -1,6 +1,6 @@
 #include "Detector.hpp"
 
-Detector::Detector(){};
+Detector::Detector() : dethCount(0){};
 
 Detector::~Detector(){};
 
@@ -155,6 +155,8 @@ int Detector::Work()
                 if (test.find("YOU DIED") != std::string::npos ||
                     test.find("YOUDIED") != std::string::npos) {
                     std::cout << "LOL U DIED; LOL LOL U DIED;";
+
+                    ++this->dethCount;
                 }
                 // Destroy used object and release memory
                 image.release();

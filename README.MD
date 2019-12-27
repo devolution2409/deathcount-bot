@@ -124,3 +124,5 @@ TODO:
 - [ ] Add sigint handling
 
 - [x] format readme correctly LOOOL 4HEad
+
+- [ ] Add debug/verbosity/log messages

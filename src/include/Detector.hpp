@@ -41,6 +41,8 @@ class Detector {
      * @return false otherwise
      */
     bool FetchStreamUrls();
+
+    int dethCount;
 };
 
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
