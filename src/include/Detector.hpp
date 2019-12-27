@@ -37,14 +37,14 @@ class Detector {
     int Work();
 
   private:
-    enum Type { UNKNOWN, OCR, LUA };
+    enum Type { UNSET, UNKNOWN, OCR, LUA };
 
     // Stream vars
     std::string quality;
     std::string streamer;
     std::string streamUrl;
 
-    // Detector vars
+    // Game config, read from the Json
     Detector::Type type;
     std::vector<std::string> params; // array of words to match, or array of lua files
     int deathCooldown;

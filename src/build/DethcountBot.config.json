@@ -6,8 +6,10 @@
             "method": {
                 "type": "OCR",
                 "params": [
-                    "VOUS ETES MORTS",
-                    "YOU DIED"
+                    "VOUS ETES MORT",
+                    "VOUS ÊTES MORT",
+                    "YOU DIED",
+                    "YOUDIED"
                 ]
             },
             "deathCooldown": "1"
@@ -21,7 +23,7 @@
                     "luaFile.lua"
                 ]
             },
-            "deathCooldown": "1"
+            "deathCooldown": 1
         }
     ],
     "version": 1

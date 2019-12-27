@@ -1,6 +1,6 @@
 #include "Detector.hpp"
 
-Detector::Detector() : dethCount(0){};
+Detector::Detector() : dethCount(0), type(Detector::Type::UNSET){};
 
 Detector::~Detector(){};
 
@@ -113,66 +113,89 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
 
 int Detector::Work()
 {
+    this->FetchStreamUrls();
+    // TODO: very later, implement LUA
+
+    // If detector is still unset, it means the config is fucked up, or wasn't found
+    if (this->type == Detector::Type::UNSET) {
+        return 4; // no valid configuration for this game
+    }
+
     if (this->streamer.empty()) {
         return 3; // no valid streamer provided at this point
     }
     // If we can't find anything we return
     if (!this->FetchStreamUrls()) {
-        std::cout << "No stream found" << std::endl;
         return 1; // no valid stream URL
     }
 
-    // now this->streamUrl is set. Time to initialize Tesseract
-    tesseract::TessBaseAPI* api = new tesseract::TessBaseAPI();
-    // Initialize tesseract-ocr with English, without specifying tessdata path
-    if (api->Init(NULL, "eng")) {
-        fprintf(stderr, "Could not initialize tesseract.\n");
-        return 2; // tesseract failed to init.
-    }
-    // Creating video capture object and opening the stream
-    cv::VideoCapture cap;
-    cap.open(streamUrl.c_str());
-    cv::Mat image;
+    if (this->type == Detector::Type::OCR) {
 
-    while (1) {
-        if (!cap.read(image)) {
-            std::cout << "No frame" << std::endl;
+        // now this->streamUrl is set. Time to initialize Tesseract
+        tesseract::TessBaseAPI* api = new tesseract::TessBaseAPI();
+        // Initialize tesseract-ocr with English, without specifying tessdata path
+        if (api->Init(NULL, "eng")) {
+            fprintf(stderr, "Could not initialize tesseract.\n");
+            return 2; // tesseract failed to init.
         }
-        else {
-            // 30 fps
-            if (static_cast<int>(cap.get(1)) == 1 || static_cast<int>(cap.get(1)) % 30 == 0) {
-                std::cout << "capget" << cap.get(1);
+        // Creating video capture object and opening the stream
+        cv::VideoCapture cap;
+        cap.open(streamUrl.c_str());
+        cv::Mat image;
 
-                std::string name = "temp_" + this->streamer + "_" +
-                                   std::to_string(cap.get(1)) + ".png";
+        while (1) {
+            if (!cap.read(image)) {
+                std::cout << "No frame" << std::endl;
+            }
+            else {
+                constexpr int fps = 15;
+                // 30 fps
+                if (static_cast<int>(cap.get(1)) == 1 ||
+                    static_cast<int>(cap.get(1)) % fps == 0) {
+                    // std::cout << "capget" << cap.get(1);
 
-                cv::imwrite(name, image);
+                    std::string name = "temp_" + this->streamer + "_" +
+                                       std::to_string(cap.get(1)) + ".png";
 
-                // api->SetImage(image.data, image.cols, image.rows, 4, 4*image.cols);
-                Pix* image2 = pixRead(name.c_str());
+                    cv::imwrite(name, image);
 
-                api->SetImage(image2);
+                    // api->SetImage(image.data, image.cols, image.rows, 4, 4*image.cols);
+                    Pix* image2 = pixRead(name.c_str());
 
-                std::string test(api->GetUTF8Text());
-                std::cout << "test" << test;
+                    api->SetImage(image2);
 
-                if (test.find("YOU DIED") != std::string::npos ||
-                    test.find("YOUDIED") != std::string::npos) {
-                    std::cout << "LOL U DIED; LOL LOL U DIED;";
+                    std::string text(api->GetUTF8Text());
+                    std::cout << "frame: " << std::to_string(cap.get(1)) << std::endl
+                              << text << std::endl;
+                    // Do the matching here.
+                    // Match phrases are in the params vector
+                    for (auto it : this->params) {
+                        // TODO: do we need to "normalize the string?"
+                        // TODO: any combination of the string with or without
+                        // their space 2^n complexity feelsdankman
+                        // std::cout << std::endl
+                        //   << "Trying to find " << it << " in string"
+                        //   << std::endl;
+                        if (text.find(it) != std::string::npos) {
+                            ++this->dethCount;
 
-                    ++this->dethCount;
+                            std::cout << "Deth at frame:" << cap.get(1)
+                                      << " which evaluates to " << cap.get(1) * fps
+                                      << " seconds after recording started.";
+                            break;
+                        }
+                    }
+                    // Destroy used object and release memory
+                    image.release();
+                    pixDestroy(&image2);
+                    // TODO: replace remove with std::filesystem
+                    // remove(name.c_str());
                 }
-                // Destroy used object and release memory
-                image.release();
-                pixDestroy(&image2);
-                // TODO: replace remove with std::filesystem
-                remove(name.c_str());
             }
         }
+
+        api->End();
     }
-
-    api->End();
-
     return 0; // done working
 }
 
@@ -183,6 +206,7 @@ Detector& Detector::ReadConfig(std::string path, int gameID)
     std::stringstream buffer;
     buffer << t.rdbuf();
     std::string config = buffer.str();
+    t.close();
     // create json object
     rapidjson::Document document;
     //  std::cout << "here";
@@ -217,18 +241,20 @@ Detector& Detector::ReadConfig(std::string path, int gameID)
                     else if (i["method"]["type"] == "LUA") {
                         this->type = Detector::Type::LUA;
                     }
-                    else {
-                        this->type = Detector::Type::UNKNOWN;
-                    }
 
                     // Fetch list of params
                     for (auto& k : i["method"]["params"].GetArray()) {
                         assert(k.IsString());
                         this->params.push_back(k.GetString());
                     }
+                    assert(i.HasMember("deathCooldown"));
+                    // account for quotes
+                    this->deathCooldown = i["deathCooldown"].IsString()
+                                              ? std::stoi(i["deathCooldown"].GetString())
+                                              : i["deathCooldown"].GetInt();
+
+                    break;
                 }
-                else
-                    std::cout << "vi lost";
             }
         }
     }

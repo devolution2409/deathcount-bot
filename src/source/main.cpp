@@ -24,7 +24,6 @@ using namespace cv;
 
 int main(int argc, char** argv)
 {
-    std::string streamUrl;
 
     boost::program_options::options_description desc("Usage");
     // The add_options method of that class returns a special proxy object that defines operator(). Calls to that operator actually declare options.
@@ -83,7 +82,7 @@ int main(int argc, char** argv)
     // at this point streamer, config and gameID shoudl be set.
 
     Detector detector;
-    detector.SetStreamer(streamUrl).ReadConfig(config, gameID).Work();
+    detector.SetStreamer(streamer).ReadConfig(config, gameID).Work();
 
     return 0;
 }
