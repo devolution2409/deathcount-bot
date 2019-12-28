@@ -103,15 +103,15 @@ TODO:
 
   
 
-- [ ] Add proper argv parsing
+- [x] Add proper argv parsing
 
-- [ ] --streamer the streamer name. To be converted to a stream url.
+- [x] --streamer streamerNAme the streamer name. To be converted to a stream url.
 
-- [ ] --force-game [id=12345, name="TriHard"] force config to a game name or a game ID
+- [x] --force-game gameID force config to a game name or a game ID
 
-- [ ] Move the main into dedicated OCR class
+- [x] Move the main into dedicated OCR class
 
-- [ ] Add config files / db for settings / which text to search for (example: DethcountBot.config)
+- [x] Add config files / db for settings / which text to search for (example: DethcountBot.config)
 
 - [ ] Implement matching functions for case insensitive search and removal of accent etc
 
@@ -126,3 +126,5 @@ TODO:
 - [x] format readme correctly LOOOL 4HEad
 
 - [ ] Add debug/verbosity/log messages
+
+- [ ] Add options in the json to specify which threshold to use etc during pre-processing (add a preprocessing block)

@@ -157,6 +157,11 @@ int Detector::Work()
                     std::string name = "temp_" + this->streamer + "_" +
                                        std::to_string(cap.get(1)) + ".png";
 
+                    // Preprocess the image.
+                    // TODO: add a block for those parameters in the json
+                    cv::threshold(image, image, 90, 255, cv::THRESH_BINARY);
+                    cv::medianBlur(image, image, 3);
+
                     cv::imwrite(name, image);
 
                     // api->SetImage(image.data, image.cols, image.rows, 4, 4*image.cols);
@@ -259,4 +264,43 @@ Detector& Detector::ReadConfig(std::string path, int gameID)
         }
     }
     return *this;
+}
+
+void Detector::OCRWorkOnce(std::string image)
+{
+    tesseract::TessBaseAPI* api = new tesseract::TessBaseAPI();
+
+    cv::Mat img = cv::imread(image.c_str());
+    cv::Mat new_image = cv::Mat::zeros(img.size(), img.type());
+
+    // double threshold(InputArray src, OutputArray dst, double thresh, double maxval, int type);
+    cv::threshold(img, new_image, 90, 255, cv::THRESH_BINARY);
+    cv::medianBlur(new_image, new_image, 3);
+
+    /*     double alpha = 1.0; //< Simple contrast control
+        int beta = 0;       //< Simple brightness control
+
+        for (int y = 0; y < img.rows; y++) {
+            for (int x = 0; x < img.cols; x++) {
+                for (int c = 0; c < img.channels(); c++) {
+                    new_image.at<cv::Vec3b>(y, x)[c] =
+                        cv::saturate_cast<uchar>(alpha * img.at<cv::Vec3b>(y, x)[c] + beta);
+                }
+            }
+        }
+     */
+    cv::imwrite("test.png", new_image);
+
+    if (api->Init(NULL, "eng")) {
+        fprintf(stderr, "Could not initialize tesseract.\n");
+        return; // tesseract failed to init.
+    }
+    Pix* image2 = pixRead("test.png");
+
+    api->SetImage(image2);
+
+    std::string text(api->GetUTF8Text());
+    std::cout << text << std::endl;
+    api->End();
+    pixDestroy(&image2);
 }

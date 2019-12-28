@@ -35,6 +35,7 @@ class Detector {
     Detector& ReadConfig(std::string path, int gameID);
 
     int Work();
+    void OCRWorkOnce(std::string image);
 
   private:
     enum Type { UNSET, UNKNOWN, OCR, LUA };

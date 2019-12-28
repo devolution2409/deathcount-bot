@@ -27,15 +27,15 @@ int main(int argc, char** argv)
 
     boost::program_options::options_description desc("Usage");
     // The add_options method of that class returns a special proxy object that defines operator(). Calls to that operator actually declare options.
-    // clang-format off
 
-    std::string streamer, config;
+    std::string streamer, config, debug;
     int gameID;
-
+    // clang-format off
     desc.add_options()("help", "Show this message")
         ("streamer", boost::program_options::value<std::string>(&streamer),"Which streamer to monitor")
         ("force-game-id", boost::program_options::value<int>(&gameID),"Force a game configuration")
         ("config-file", boost::program_options::value<std::string>(&config)->default_value("DethcountBot.config.json"),"Path to a valid config.json file. Defaults to DethcountBot.config.json")
+        ("debug", boost::program_options::value<std::string>(&debug),"Path to an image to force OCR on. Discard other arguments")
         ;
     // clang-format on
     boost::program_options::variables_map vm;
@@ -58,6 +58,15 @@ int main(int argc, char** argv)
     if (vm.count("help")) {
         std::cout << desc << "\n";
         return 1;
+    }
+
+    // if debug we wanna force OCR on a single image
+
+    if (!debug.empty()) {
+        std::cout << "Debug \n";
+        Detector detector;
+        detector.OCRWorkOnce(debug);
+        return 0;
     }
 
     // for now, force-game-id is mandatory.
