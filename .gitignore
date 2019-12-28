@@ -19,3 +19,4 @@ fonts/OptimusPrinceps/OptimusPrinceps.ttf
 fonts/OptimusPrinceps/OptimusPrincepsSemiBold.ttf
 traineddata/OptimusPrinceps.traineddata
 src/source/LidlDetector.cpp
+src/build/logs*.txt
