@@ -170,8 +170,8 @@ int Detector::Work()
                     api->SetImage(image2);
 
                     std::string text(api->GetUTF8Text());
-                    std::cout << "frame: " << std::to_string(cap.get(1)) << std::endl
-                              << text << std::endl;
+                    // std::cout << "frame: " << std::to_string(cap.get(1)) << std::endl
+                    //           << text << std::endl;
                     // Do the matching here.
                     // Match phrases are in the params vector
                     for (auto it : this->params) {
@@ -184,8 +184,8 @@ int Detector::Work()
                         if (text.find(it) != std::string::npos) {
                             ++this->dethCount;
 
-                            std::cout << "Deth at frame:" << cap.get(1)
-                                      << " which evaluates to " << cap.get(1) * fps
+                            std::cout << "Deth at frame:" << cap.get(1) << " which evaluates to "
+                                      << cap.get(1) / static_cast<double>(fps)
                                       << " seconds after recording started.";
                             break;
                         }
@@ -194,7 +194,8 @@ int Detector::Work()
                     image.release();
                     pixDestroy(&image2);
                     // TODO: replace remove with std::filesystem
-                    // remove(name.c_str());
+
+                    remove(name.c_str());
                 }
             }
         }
