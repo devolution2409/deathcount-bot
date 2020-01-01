@@ -113,6 +113,7 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
 
 int Detector::Work()
 {
+
     this->FetchStreamUrls();
     // TODO: very later, implement LUA
 
@@ -130,48 +131,58 @@ int Detector::Work()
     }
 
     if (this->type == Detector::Type::OCR) {
-
         // now this->streamUrl is set. Time to initialize Tesseract
         tesseract::TessBaseAPI* api = new tesseract::TessBaseAPI();
+
         // Initialize tesseract-ocr with English, without specifying tessdata path
         if (api->Init(NULL, "eng")) {
             fprintf(stderr, "Could not initialize tesseract.\n");
             return 2; // tesseract failed to init.
         }
+
         // Creating video capture object and opening the stream
         cv::VideoCapture cap;
         cap.open(streamUrl.c_str());
         cv::Mat image;
 
         while (1) {
+
             if (!cap.read(image)) {
                 std::cout << "No frame" << std::endl;
             }
             else {
-                constexpr int fps = 15;
+                constexpr int fps = 30;
                 // 30 fps
                 if (static_cast<int>(cap.get(1)) == 1 ||
                     static_cast<int>(cap.get(1)) % fps == 0) {
                     // std::cout << "capget" << cap.get(1);
 
-                    std::string name = "temp_" + this->streamer + "_" +
+                    std::string name = "./debug/temp_" + this->streamer + "_" +
                                        std::to_string(cap.get(1)) + ".png";
 
                     // Preprocess the image.
                     // TODO: add a block for those parameters in the json
-                    cv::threshold(image, image, 90, 255, cv::THRESH_BINARY);
+                    // cv::threshold(image, image, 90, 255, cv::THRESH_BINARY);
                     cv::medianBlur(image, image, 3);
+                    // cv::imwrite(name, image);
 
-                    cv::imwrite(name, image);
+                    // TODO: find a way to wait until image finishing 'downloading' into ram, or written to disk
 
-                    // api->SetImage(image.data, image.cols, image.rows, 4, 4*image.cols);
-                    Pix* image2 = pixRead(name.c_str());
+                    cv::Mat temp = this->PreProcessImage(image);
+                    Pix* image2 = Utils::Mat::Mat8ToPix(&temp);
+                    // Pix* image2 = pixRead(name.c_str());
 
                     api->SetImage(image2);
 
                     std::string text(api->GetUTF8Text());
-                    // std::cout << "frame: " << std::to_string(cap.get(1)) << std::endl
-                    //           << text << std::endl;
+
+                    std::cout << "frame: " << std::to_string(cap.get(1)) << std::endl
+                              << text << std::endl;
+
+                    // cv::putText(temp, text, cv::Point(100, 100), cv::FONT_HERSHEY_SIMPLEX,
+                    //             1, cv::Scalar(255, 255, 255), 1, 8);
+                    cv::imwrite(name, temp);
+
                     // Do the matching here.
                     // Match phrases are in the params vector
                     for (auto it : this->params) {
@@ -189,13 +200,17 @@ int Detector::Work()
                                       << " seconds after recording started.";
                             break;
                         }
+                        else {
+                            // remove image only if not a death
+                            // if (static_cast<int>(cap.get(1)) % 60 == 0)
+                            //   remove(name.c_str());
+                        }
                     }
                     // Destroy used object and release memory
                     image.release();
+                    temp.release();
                     pixDestroy(&image2);
                     // TODO: replace remove with std::filesystem
-
-                    remove(name.c_str());
                 }
             }
         }
@@ -275,22 +290,22 @@ void Detector::OCRWorkOnce(std::string image)
     cv::Mat new_image = cv::Mat::zeros(img.size(), img.type());
 
     // double threshold(InputArray src, OutputArray dst, double thresh, double maxval, int type);
+
     cv::threshold(img, new_image, 90, 255, cv::THRESH_BINARY);
     cv::medianBlur(new_image, new_image, 3);
 
-    /*     double alpha = 1.0; //< Simple contrast control
-        int beta = 0;       //< Simple brightness control
+    // Convert from BGR to HSV colorspace
+    // cv::cvtColor(new_image, new_image, cv::COLOR_BGR2HSV);
+    // somehow at this point YOU DIED stuff is in yellow instead of red
 
-        for (int y = 0; y < img.rows; y++) {
-            for (int x = 0; x < img.cols; x++) {
-                for (int c = 0; c < img.channels(); c++) {
-                    new_image.at<cv::Vec3b>(y, x)[c] =
-                        cv::saturate_cast<uchar>(alpha * img.at<cv::Vec3b>(y, x)[c] + beta);
-                }
-            }
-        }
-     */
-    cv::imwrite("test.png", new_image);
+    /*    cv::Scalar lowerRed = Utils::ColorSpace::RGBtoHSV(255, 255, 0);
+       cv::Scalar upperRed = Utils::ColorSpace::RGBtoHSV(255, 255, 255); */
+
+    /*     cv::Mat frame_threshold;
+        cv::inRange(new_image, lowerRed, upperRed, frame_threshold);
+
+        cv::imwrite("framethreshold.png", frame_threshold);
+        cv::imwrite("test.png", new_image); */
 
     if (api->Init(NULL, "eng")) {
         fprintf(stderr, "Could not initialize tesseract.\n");
@@ -304,4 +319,39 @@ void Detector::OCRWorkOnce(std::string image)
     std::cout << text << std::endl;
     api->End();
     pixDestroy(&image2);
+}
+
+// TODO: write xamples with image along side the json to explain wtf is going on smileyW
+cv::Mat Detector::PreProcessImage(const cv::Mat& image)
+{
+    // add parameter such as css margin, as in: margin top right left bot or smth
+
+    // TODO: check for the preprocessing in the json
+    // TODO: parameters as %? as pixels? idk kev feelsmegadankman
+
+    int x = 0;                          // starting point x coordinates
+    int y = 200;                        // starting point y coordinates
+    int width = image.size().width - x; // get all "remaining image"
+    int height = 300;
+    // int height = image.size().height - y; // get all remaining image
+
+    /* individual assertions to debug if needed */
+    /*  assert(0 <= x);
+     assert(0 <= width);
+     assert((x + width) <= image.cols);
+     assert(0 <= y);
+     assert(0 <= height);
+     assert((y + height) <= image.rows); */
+
+    // Check for Region of Interest 'inside' image
+    if (0 <= x && 0 <= width && (x + width) <= image.cols && 0 <= y &&
+        0 <= height && (y + height) <= image.rows) {
+
+        cv::Mat temp = image(cv::Rect(x, y, width, height));
+        return temp;
+    }
+    else {
+        // TODO: check which dimension is too large and supposed we wanted to crop until image is done
+        return image;
+    }
 }

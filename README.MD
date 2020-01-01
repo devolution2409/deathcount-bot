@@ -128,3 +128,7 @@ TODO:
 - [ ] Add debug/verbosity/log messages
 
 - [ ] Add options in the json to specify which threshold to use etc during pre-processing (add a preprocessing block)
+
+- [ ] Factor resolution in the pre-processing block that deals with the image cropping.
+
+- [ ] Later: add option to automatically clip the death, or save the screenshot of it, or both

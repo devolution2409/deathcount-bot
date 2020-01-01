@@ -8,6 +8,7 @@
 #include <string>
 #include <tesseract/baseapi.h>
 
+#include "Utils.hpp"
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -49,6 +50,9 @@ class Detector {
     Detector::Type type;
     std::vector<std::string> params; // array of words to match, or array of lua files
     int deathCooldown;
+
+    // Preprocess image and returns a cv::Mat
+    cv::Mat PreProcessImage(const cv::Mat& image);
 
     /**
      * @brief Fetch Streams Urls using pwn.sh API and libcurl.
